@@ -1,6 +1,7 @@
 package Components;
 
 public class Memory {
+    //TODO: make mem slot 3ashan ne7ot tag
     private double[] memory;
     private final int memSize;
 

@@ -12,7 +12,7 @@ public class LoadStoreSlot {
     private boolean busy;
     private int effectiveAddress;
 
-    private int v;
+    private double v;
     private String q;
     private double result;
     private boolean ready;
@@ -32,7 +32,7 @@ public class LoadStoreSlot {
         published = false;
     }
 
-    public LoadStoreSlot(Instruction instruction, String tag, boolean busy, int v, String q) {
+    public LoadStoreSlot(Instruction instruction, String tag, boolean busy, double v, String q) {
         this.instruction = instruction;
         this.tag = tag;
         this.timeLeft = instruction.getLatency();
@@ -86,7 +86,7 @@ public class LoadStoreSlot {
         return effectiveAddress;
     }
 
-    public int getV() {
+    public double getV() {
         return v;
     }
 

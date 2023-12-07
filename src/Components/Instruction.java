@@ -4,7 +4,7 @@ import Enums.Operation;
 
 public class Instruction {
     private boolean isFPop;
-    private boolean isLoad;
+    private boolean isMEMop;
     private int latency;
     private Operation operation;
     private String sourceOperand;
@@ -19,9 +19,9 @@ public class Instruction {
     private int publishCycle; //these will be initially set to -ve values until updated
 
     //new constructor with the new variables
-    public Instruction(boolean isFPop, boolean isLoad, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand, int effectiveAddress, String label, int issueCycle, int executionStartCycle, int executionEndCycle, int publishCycle) {
+    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand, int effectiveAddress, String label, int issueCycle, int executionStartCycle, int executionEndCycle, int publishCycle) {
         this.isFPop = isFPop;
-        this.isLoad = isLoad;
+        this.isMEMop = isMEMop;
         this.latency = latency;
         this.operation = operation;
         this.sourceOperand = sourceOperand;
@@ -39,8 +39,8 @@ public class Instruction {
         return isFPop;
     }
 
-    public boolean isLoad() {
-        return isLoad;
+    public boolean isMEMop() {
+        return isMEMop;
     }
 
     public int getLatency() {
@@ -106,7 +106,7 @@ public class Instruction {
     public String toString() {
         return "Instruction{" +
                 "isFPop=" + isFPop +
-                ", isLoad=" + isLoad +
+                ", isMEMop=" + isMEMop +
                 ", latency=" + latency +
                 ", operation=" + operation +
                 ", sourceOperand='" + sourceOperand + '\'' +
