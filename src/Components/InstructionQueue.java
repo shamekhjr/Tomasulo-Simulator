@@ -13,6 +13,14 @@ public class InstructionQueue {
         instructions.add(instruction);
     }
 
+    public boolean isEmpty() {
+        return instructions.isEmpty();
+    }
+
+    public Instruction peekInstruction() {
+        return instructions.peek();
+    }
+
     public Instruction getInstruction() {
         return instructions.remove();
     }
