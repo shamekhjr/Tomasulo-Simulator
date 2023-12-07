@@ -9,7 +9,7 @@ public class ReservationStationSlot {
     private double vK;
     private String qJ;
     private String qK;
-    private double result;
+    private double result; //TODO: yeba long fee 7alet eno integer operation
     private boolean ready;
     private boolean finished;
     private boolean published;

@@ -49,7 +49,7 @@ public class AddSubReservationStation {
         for (int i = 0; i < size; i++) {
             if (!addSubReservationStationSlots[i].isBusy()) {
                 addSubReservationStationSlots[i].setInstruction(instruction);
-                addSubReservationStationSlots[i].setAll("A"+i,true,0,0,"","",false,false);
+                addSubReservationStationSlots[i].setAll("A"+i,true,vJ,vK,qJ,qK,false,false);
                 updateNumOfUsedStationsA();
                 break;
             }

@@ -49,7 +49,7 @@ public class MulDivReservationStation {
         for (int i = 0; i < size; i++) {
             if (!mulDivReservationStationSlots[i].isBusy()) {
                 mulDivReservationStationSlots[i].setInstruction(instruction);
-                mulDivReservationStationSlots[i].setAll("M"+i,true,0,0,"","",false,false);
+                mulDivReservationStationSlots[i].setAll("M"+i,true,vJ,vK,qJ,qK,false,false);
                 updateNumOfUsedStationsM();
                 break;
             }
