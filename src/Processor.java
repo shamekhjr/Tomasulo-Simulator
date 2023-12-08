@@ -2,6 +2,7 @@ import Components.*;
 import Enums.Operation;
 
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.regex.*;
 
 import java.io.BufferedReader;
@@ -30,6 +31,12 @@ public class Processor {
     public static void main(String[] args) throws IOException {
         Processor processor = new Processor();
 
+        System.out.println("===========================================");
+        System.out.println("Welcome to the Tomasulo Simulator!");
+        System.out.println("===========================================");
+
+        processor.getUserLatencies();
+
         // parse the code
         processor.codeParser();
 
@@ -53,6 +60,35 @@ public class Processor {
         DAddLatency = 1;
         SubILatency = 1;
         MemLatency = 1;
+    }
+
+    public void getUserLatencies() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the latencies of each instruction (in cycles) ...");
+
+        System.out.print("Memory Latency: ");
+        MemLatency = scanner.nextInt();
+
+        System.out.print("ADD.D Latency: ");
+        Add_DLatency = scanner.nextInt();
+
+        System.out.print("SUB.D Latency: ");
+        Sub_DLatency = scanner.nextInt();
+
+        System.out.print("MUL.D Latency: ");
+        Mul_DLatency = scanner.nextInt();
+
+        System.out.print("DIV.D Latency: ");
+        Div_DLatency = scanner.nextInt();
+
+        System.out.print("DADD Latency: ");
+        DAddLatency = scanner.nextInt();
+
+        System.out.print("SUBI Latency: ");
+        SubILatency = scanner.nextInt();
+
+        System.out.println("Latencies updated successfully!");
     }
 
     private static String[] splitInstruction(String instruction) {
