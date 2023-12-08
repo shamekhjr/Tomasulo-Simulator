@@ -19,7 +19,7 @@ public class Instruction {
     private int publishCycle; //these will be initially set to -ve values until updated
 
     //new constructor with the new variables
-    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand, int effectiveAddress, String label, int issueCycle, int executionStartCycle, int executionEndCycle, int publishCycle) {
+    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand, int effectiveAddress, String label) {
         this.isFPop = isFPop;
         this.isMEMop = isMEMop;
         this.latency = latency;
@@ -29,10 +29,10 @@ public class Instruction {
         this.targetOperand = targetOperand;
         this.effectiveAddress = effectiveAddress;
         this.label = label;
-        this.issueCycle = issueCycle;
-        this.executionStartCycle = executionStartCycle;
-        this.executionEndCycle = executionEndCycle;
-        this.publishCycle = publishCycle;
+        this.issueCycle = -1;
+        this.executionStartCycle = -1;
+        this.executionEndCycle = -1;
+        this.publishCycle = -1;
     }
 
     public boolean isFPop() {

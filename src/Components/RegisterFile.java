@@ -36,6 +36,32 @@ public class RegisterFile {
         return fpRegisters[index];
     }
 
+    public Register getRegister(String name) {
+        if (name.charAt(0) == 'R') {
+            return gpRegisters[Integer.parseInt(name.substring(1))];
+        } else if (name.charAt(0) == 'F') {
+            return fpRegisters[Integer.parseInt(name.substring(1))];
+        } else {
+            return null;
+        }
+    }
+
+    public void setRegister(String name, double value) {
+        if (name.charAt(0) == 'R') {
+            gpRegisters[Integer.parseInt(name.substring(1))].setValue(value);
+        } else if (name.charAt(0) == 'F') {
+            fpRegisters[Integer.parseInt(name.substring(1))].setValue(value);
+        }
+    }
+
+    public void setRegisterTag(String name, String q) {
+        if (name.charAt(0) == 'R') {
+            gpRegisters[Integer.parseInt(name.substring(1))].setQ(q);
+        } else if (name.charAt(0) == 'F') {
+            fpRegisters[Integer.parseInt(name.substring(1))].setQ(q);
+        }
+    }
+
     public void setGpRegisters(Register[] gpRegisters) {
         this.gpRegisters = gpRegisters;
     }
