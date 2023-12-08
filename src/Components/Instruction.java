@@ -11,7 +11,9 @@ public class Instruction {
     private String destinationOperand;
     private String targetOperand;
     private int effectiveAddress;
+    private int immediateValue;
     private String label; //law el instruction odamha label 3ashan nerga3 lel label da law 3ayz a3ml branch
+    private String jumpLabel;
 
     private int issueCycle;
     private int executionStartCycle;
@@ -19,7 +21,7 @@ public class Instruction {
     private int publishCycle; //these will be initially set to -ve values until updated
 
     //new constructor with the new variables
-    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand, int effectiveAddress, String label) {
+    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,int immediateValue, int effectiveAddress, String label, String jumpLabel) {
         this.isFPop = isFPop;
         this.isMEMop = isMEMop;
         this.latency = latency;
@@ -28,11 +30,14 @@ public class Instruction {
         this.destinationOperand = destinationOperand;
         this.targetOperand = targetOperand;
         this.effectiveAddress = effectiveAddress;
+        this.immediateValue = immediateValue;
         this.label = label;
+        this.jumpLabel = jumpLabel;
         this.issueCycle = -1;
         this.executionStartCycle = -1;
         this.executionEndCycle = -1;
         this.publishCycle = -1;
+
     }
 
     public boolean isFPop() {
@@ -113,7 +118,9 @@ public class Instruction {
                 ", destinationOperand='" + destinationOperand + '\'' +
                 ", targetOperand='" + targetOperand + '\'' +
                 ", effectiveAddress=" + effectiveAddress +
+                ", immediateValue=" + immediateValue +
                 ", label='" + label + '\'' +
+                ", jumpLabel=" + jumpLabel + '\'' +
                 ", issueCycle=" + issueCycle +
                 ", executionStartCycle=" + executionStartCycle +
                 ", executionEndCycle=" + executionEndCycle +

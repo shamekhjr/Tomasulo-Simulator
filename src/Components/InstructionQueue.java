@@ -4,12 +4,13 @@ import java.util.*;
 
 public class InstructionQueue {
     private ArrayList<Instruction> instructions;
-    int currentIndex;
-    HashMap<String, Integer> labels;
+    private int currentIndex;
+    private HashMap<String, Integer> labels;
 
     public InstructionQueue() {
         instructions = new ArrayList<>();
         currentIndex = -1;
+        labels = new HashMap<>();
     }
 
     public void addInstruction(Instruction instruction) {
@@ -34,7 +35,17 @@ public class InstructionQueue {
         return instructions.get(currentIndex++);
     }
 
+    public HashMap<String, Integer> getLabels() {
+        return labels;
+    }
+
     public void returnToLabel(String label) {
         currentIndex = labels.get(label);
+    }
+
+    public void print() {
+        for (Instruction instruction : instructions) {
+            System.out.println(instruction);
+        }
     }
 }
