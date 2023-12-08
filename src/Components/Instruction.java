@@ -11,9 +11,10 @@ public class Instruction {
     private String destinationOperand;
     private String targetOperand;
     private int effectiveAddress;
-    private int immediateValue;
+    private double immediateValue;
     private String label; //law el instruction odamha label 3ashan nerga3 lel label da law 3ayz a3ml branch
     private String jumpLabel;
+    private String instructionString;
 
     private int issueCycle;
     private int executionStartCycle;
@@ -21,7 +22,7 @@ public class Instruction {
     private int publishCycle; //these will be initially set to -ve values until updated
 
     //new constructor with the new variables
-    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,int immediateValue, int effectiveAddress, String label, String jumpLabel) {
+    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,int immediateValue, int effectiveAddress, String label, String jumpLabel, String instructionString) {
         this.isFPop = isFPop;
         this.isMEMop = isMEMop;
         this.latency = latency;
@@ -37,6 +38,7 @@ public class Instruction {
         this.executionStartCycle = -1;
         this.executionEndCycle = -1;
         this.publishCycle = -1;
+        this.instructionString = instructionString;
 
     }
 
@@ -80,6 +82,15 @@ public class Instruction {
         return issueCycle;
     }
 
+    public double getImmediateValue() {
+        return immediateValue;
+    }
+
+    public String getJumpLabel() {
+        return jumpLabel;
+    }
+
+
     public void setIssueCycle(int issueCycle) {
         this.issueCycle = issueCycle;
     }
@@ -106,6 +117,10 @@ public class Instruction {
 
     public void setPublishCycle(int publishCycle) {
         this.publishCycle = publishCycle;
+    }
+
+    public String getInstructionString() {
+        return instructionString;
     }
 
     public String toString() {

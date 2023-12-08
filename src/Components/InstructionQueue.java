@@ -31,12 +31,24 @@ public class InstructionQueue {
         return instructions.size();
     }
 
+    public Instruction getInstructionNoInc() {
+        return currentIndex <= instructions.size() - 1 ?instructions.get(currentIndex) : null;
+    }
+
+    public void incrementIndex() {
+        currentIndex++;
+    }
+
     public Instruction getInstruction() {
         return instructions.get(currentIndex++);
     }
 
     public HashMap<String, Integer> getLabels() {
         return labels;
+    }
+
+    public int getCurrentIndex() {
+        return currentIndex;
     }
 
     public void returnToLabel(String label) {

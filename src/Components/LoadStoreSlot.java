@@ -12,9 +12,9 @@ public class LoadStoreSlot {
     private boolean busy;
     private int effectiveAddress;
 
-    private double v;
+    private Double v;
     private String q;
-    private double result;
+    private Double result;
     private boolean ready;
     private boolean finished;
     private boolean published;
@@ -24,9 +24,9 @@ public class LoadStoreSlot {
         tag = "";
         timeLeft = 0;
         busy = false;
-        v = 0;
+        v = (double) 0;
         q = "";
-        result = 0;
+        result = (double) 0;
         ready = false;
         finished = false;
         published = false;
@@ -91,7 +91,7 @@ public class LoadStoreSlot {
     }
 
     public void setV(int v) {
-        this.v = v;
+        this.v = (double) v;
 
     }
 
@@ -154,7 +154,7 @@ public class LoadStoreSlot {
         timeLeft--;
     }
 
-    public void setAll(String tag, boolean busy, int v, String q, boolean finished, boolean published) {
+    public void setAll(String tag, boolean busy, Double v, String q, boolean finished, boolean published) {
         this.tag = tag;
         this.timeLeft = instruction.getLatency();
         this.busy = busy;

@@ -1,15 +1,12 @@
 import Components.*;
 import Enums.Operation;
-
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.*;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+
 
 public class Processor {
     String log;
@@ -27,18 +24,32 @@ public class Processor {
     int DAddLatency;
     int SubILatency;
     int MemLatency;
+    int cycleCounter;
+    final int NON_IMMEDIATE = -404404404;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-
-
-        System.out.println("===========================================");
-        System.out.println("    Welcome to the Tomasulo Simulator!");
-        System.out.println("===========================================");
+        System.out.println("============================================");
+        System.out.println("    Welcome to the Tomasulo Simulator!      ");
+        System.out.println("============================================");
 
         Processor processor = getProcessorSetup();
 
         // parse the code
         processor.codeParser();
+
+        System.out.println("--------------------------------------------");
+        System.out.println("    Tomasulo Simulator is now running!      ");
+        System.out.println("--------------------------------------------");
+
+
+        while (!(processor.instructionQueue.getCurrentIndex() >= processor.instructionQueue.size() && processor.addSubReservationStation.isEmpty() && processor.mulDivReservationStation.isEmpty() && processor.loadStoreBuffers.isEmpty())) {
+            System.out.println("Cycle " + processor.cycleCounter);
+            processor.issue();
+            processor.execute();
+            processor.writeBack();
+            processor.cycleCounter++;
+            System.out.println("============================================");
+        }
 
         processor.instructionQueue.print();
 
@@ -60,6 +71,7 @@ public class Processor {
         DAddLatency = 1;
         SubILatency = 1;
         MemLatency = 1;
+        cycleCounter = 1;
     }
 
     public Processor(int addSubSize, int mulDivSize, int loadBufferSize, int storeBufferSize, int memorySize, int Mul_DLatency, int Div_DLatency, int Add_DLatency, int Sub_DLatency, int DAddLatency, int SubILatency, int MemLatency) {
@@ -78,40 +90,168 @@ public class Processor {
         this.DAddLatency = DAddLatency;
         this.SubILatency = SubILatency;
         this.MemLatency = MemLatency;
+        this.cycleCounter = 1;
     }
 
-    private static void printLoadingBar(int currentIteration, int totalIterations) {
-        int barLength = 20;
-        int progress = (int) ((double) currentIteration / totalIterations * barLength);
+    private OperandTuple readArithOperands(Instruction instruction) {
+        OperandTuple operands = new OperandTuple();
 
-        System.out.print("\r[");
-        for (int i = 0; i < barLength; i++) {
-            if (i < progress) {
-                System.out.print("=");
+        // group similar instructions
+        //fpop, dadd 3
+        //i src only
+        //bnez src only
+
+        if (instruction.isFPop() || instruction.getOperation() == Operation.DADD) {
+            // get the operands from the reservation station
+            String src1 = instruction.getSourceOperand();
+            String src2 = instruction.getTargetOperand();
+
+            Register regSrc1 = registerFile.getRegister(src1);
+            Register regSrc2 = registerFile.getRegister(src2);
+
+            if (regSrc1.getQ() == null) { // src1 is ready
+                operands.setVj(regSrc1.getValue());
             } else {
-                System.out.print(" ");
+                operands.setQj(regSrc1.getQ());
+            }
+
+            if (regSrc2.getQ() == null) { // src2 is ready
+                operands.setVk(regSrc2.getValue());
+            } else {
+                operands.setQk(regSrc2.getQ());
+            }
+
+        } else if (instruction.getImmediateValue() != NON_IMMEDIATE) { // immediate instruction
+            // get the operands from the reservation station
+            String src1 = instruction.getSourceOperand();
+            Register regSrc1 = registerFile.getRegister(src1);
+
+            if (regSrc1.getQ() == null) { // src1 is ready
+                operands.setVj(regSrc1.getValue());
+            } else {
+                operands.setQj(regSrc1.getQ());
+            }
+
+            operands.setVk(instruction.getImmediateValue());
+        }
+
+        return operands;
+    }
+
+    public void issue() {
+        // get the instruction
+        Instruction instruction = instructionQueue.getInstructionNoInc();
+
+        if (instruction == null) { // no instruction to issue
+            return;
+        }
+
+        // check instruction type
+        Operation currOpr = instruction.getOperation();
+        boolean isIssued = false;
+        switch (currOpr) {
+            // ADD_D, SUB_D, MUL_D, DIV_D, L_D, S_D, BNEZ, DADD, ADDI, SUBI
+            case ADD_D, ADDI, SUB_D, SUBI, DADD -> {
+                // check if there is an empty slot in the add/sub reservation station
+                if (addSubReservationStation.hasFreeStations()) {
+                    // add the instruction to the add/sub reservation station
+                    OperandTuple operands = readArithOperands(instruction);
+
+                    // add issue cycle to instruction
+                    instruction.setIssueCycle(cycleCounter);
+
+                    addSubReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
+                    isIssued = true;
+                }
+            }
+
+            case MUL_D, DIV_D -> {
+                // check if there is an empty slot in the mul/div reservation station
+                if (mulDivReservationStation.hasFreeStations()) {
+                    OperandTuple operands = readArithOperands(instruction);
+
+                    // add issue cycle to instruction
+                    instruction.setIssueCycle(cycleCounter);
+
+                    // add the instruction to the mul/div reservation station
+                    mulDivReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
+                    isIssued = true;
+                }
+            }
+
+            case L_D -> {
+                // check if there is an empty slot in the load/store buffers
+                if (!loadStoreBuffers.isLoadBufferFull()) {
+                    // add issue cycle to instruction
+                    instruction.setIssueCycle(cycleCounter);
+
+                    // add the instruction to the load/store buffers
+                    loadStoreBuffers.addLoadInstruction(instruction);
+                    isIssued = true;
+                }
+            }
+
+            case S_D -> {
+                // check if there is an empty slot in the load/store buffers
+                if (!loadStoreBuffers.isStoreBufferFull()) {
+                    // add the instruction to the load/store buffers
+                    String src1 = instruction.getSourceOperand();
+                    Register regSrc1 = registerFile.getRegister(src1);
+
+                    // add issue cycle to instruction
+                    instruction.setIssueCycle(cycleCounter);
+
+                    if (regSrc1.getQ() == null) { // src1 is ready
+                        loadStoreBuffers.addStoreInstruction(instruction, regSrc1.getValue(), null);
+                    } else {
+                        loadStoreBuffers.addStoreInstruction(instruction, -1, regSrc1.getQ());
+                    }
+
+                    isIssued = true;
+                }
+            }
+
+            case BNEZ -> {
+                // check if there is an empty slot in the add/sub reservation station
+                if (addSubReservationStation.hasFreeStations()) {
+                    String src1 = instruction.getSourceOperand();
+                    Register regSrc1 = registerFile.getRegister(src1);
+
+                    // add issue cycle to instruction
+                    instruction.setIssueCycle(cycleCounter);
+
+                    if (regSrc1.getQ() == null) { // src1 is ready
+                        addSubReservationStation.addInstruction(instruction, regSrc1.getValue(), (double) 0, null, null);
+                    } else {
+                        addSubReservationStation.addInstruction(instruction, (double) -1, (double) 0, regSrc1.getQ(), null);
+                    }
+
+                    isIssued = true;
+                }
             }
         }
-        System.out.print("] ");
 
-        // Display different characters for animation
-        switch (currentIteration % 3) {
-            case 0:
-                System.out.print("/");
-                break;
-            case 1:
-                System.out.print("|");
-                break;
-            case 2:
-                System.out.print("\\");
-                break;
+        if (isIssued) {
+            instructionQueue.incrementIndex();
+            System.out.println("Instruction (" + instruction.getInstructionString() + ") is issued");
+        } else {
+            System.out.println("Instruction (" + instruction.getInstructionString() + ") could not be issued");
         }
 
-        // Clear any characters after the loading bar
-        System.out.print("  ");
+    }
+
+    public void execute() {
+        // check if operands ready
+
+        // decrement the cycles left for each instruction in the reservation stations and edit publishCycle in instruction
+
+        // calculate result if operands ready
     }
 
 
+    public void writeBack() {
+
+    }
 
     public static Processor getProcessorSetup() throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
@@ -242,7 +382,7 @@ public class Processor {
             int effectiveAddress = -1;
             String label = null;
             String jumpLabel = null;
-            int immediateValue = -404404404;
+            int immediateValue = NON_IMMEDIATE;
 
             boolean fourToken = false;
             boolean threeToken = false;
@@ -275,8 +415,6 @@ public class Processor {
                 boolean labeled = false;
                 if (tokens[0].endsWith(":")) {
                     labeled = true;
-
-
                 } else {
                     label = null;
                 }
@@ -426,12 +564,43 @@ public class Processor {
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
                         break;
                 }
-                currentInstruction = new Instruction(isFPop, isMEMop, latency, operation, sourceOperand, destinationOperand, targetOperand, immediateValue, effectiveAddress, label, jumpLabel);
+                currentInstruction = new Instruction(isFPop, isMEMop, latency, operation, sourceOperand, destinationOperand, targetOperand, immediateValue, effectiveAddress, label, jumpLabel, line);
                 instructionQueue.addInstruction(currentInstruction);
                 //
             }
         } catch(Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void printLoadingBar(int currentIteration, int totalIterations) {
+        int barLength = 20;
+        int progress = (int) ((double) currentIteration / totalIterations * barLength);
+
+        System.out.print("\r[");
+        for (int i = 0; i < barLength; i++) {
+            if (i < progress) {
+                System.out.print("=");
+            } else {
+                System.out.print(" ");
+            }
+        }
+        System.out.print("] ");
+
+        // Display different characters for animation
+        switch (currentIteration % 3) {
+            case 0:
+                System.out.print("/");
+                break;
+            case 1:
+                System.out.print("|");
+                break;
+            case 2:
+                System.out.print("\\");
+                break;
+        }
+
+        // Clear any characters after the loading bar
+        System.out.print("  ");
     }
 }

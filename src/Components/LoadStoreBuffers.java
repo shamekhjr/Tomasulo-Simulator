@@ -122,6 +122,8 @@ public class LoadStoreBuffers {
         return numOfUsedStoreSlots == storeBufferSize;
     }
 
+
+
     public boolean isLoadBufferEmpty() {
         return numOfUsedLoadSlots == 0;
     }
@@ -130,18 +132,18 @@ public class LoadStoreBuffers {
         return numOfUsedStoreSlots == 0;
     }
 
-    public void addLoadInstruction(Instruction instruction, int v, String q) {
+    public void addLoadInstruction(Instruction instruction) {
         for (int i = 0; i < loadBufferSize; i++) {
             if (!loadSlots[i].isBusy()) {
                 loadSlots[i].setInstruction(instruction);
-                loadSlots[i].setAll("L"+i,true,v,q, false, false);
+                loadSlots[i].setAll("L"+i,true, (double) 0,"nan", false, false);
                 updateNumOfUsedLoadSlots();
                 break;
             }
         }
     }
 
-    public void addStoreInstruction(Instruction instruction, int v, String q) {
+    public void addStoreInstruction(Instruction instruction, double v, String q) {
         for (int i = 0; i < storeBufferSize; i++) {
             if (!storeSlots[i].isBusy()) {
                 storeSlots[i].setInstruction(instruction);
@@ -152,16 +154,20 @@ public class LoadStoreBuffers {
         }
     }
 
-    public void removeLoadInstruction(int index, int v, String q, boolean finished, boolean published) {
+    public void removeLoadInstruction(int index, Double v, String q, boolean finished, boolean published) {
         loadSlots[index].setInstruction(null);
-        loadSlots[index].setAll("L"+index,false,0,"",finished,published);
+        loadSlots[index].setAll("L"+index,false, (double) 0,"",finished,published);
         updateNumOfUsedLoadSlots();
     }
 
     public void removeStoreInstruction(int index, int v, String q, boolean finished, boolean published) {
         storeSlots[index].setInstruction(null);
-        storeSlots[index].setAll("S"+index,false,0,"", finished, published);
+        storeSlots[index].setAll("S"+index,false, (double) 0,"", finished, published);
         updateNumOfUsedStoreSlots();
+    }
+
+    public boolean isEmpty() {
+        return isLoadBufferEmpty() && isStoreBufferEmpty();
     }
 
     public String toString() {

@@ -5,11 +5,11 @@ public class ReservationStationSlot {
     private String tag;
     private int timeLeft;
     private boolean busy;
-    private double vJ;
-    private double vK;
+    private Double vJ;
+    private Double vK;
     private String qJ;
     private String qK;
-    private double result; //TODO: yeba long fee 7alet eno integer operation
+    private Double result; //TODO: yeba long fee 7alet eno integer operation
     private boolean ready;
     private boolean finished;
     private boolean published;
@@ -19,11 +19,11 @@ public class ReservationStationSlot {
         tag = "";
         timeLeft = 0;
         busy = false;
-        vJ = 0;
-        vK = 0;
+        vJ = (double) 0;
+        vK = (double) 0;
         qJ = "";
         qK = "";
-        result = 0;
+        result = (double) 0;
         ready = false;
         finished = false;
         published = false;
@@ -141,7 +141,7 @@ public class ReservationStationSlot {
         timeLeft--;
     }
 
-    public void setAll(String tag, boolean busy, double vJ, double vK, String qJ, String qK, boolean finished, boolean published) {
+    public void setAll(String tag, boolean busy, Double vJ, Double vK, String qJ, String qK, boolean finished, boolean published) {
         this.tag = tag;
         this.timeLeft = instruction.getLatency();
         this.busy = busy;
@@ -159,11 +159,11 @@ public class ReservationStationSlot {
         tag = "";
         timeLeft = 0;
         busy = false;
-        vJ = 0;
-        vK = 0;
+        vJ = (double) 0;
+        vK = (double) 0;
         qJ = "";
         qK = "";
-        result = 0;
+        result = (double) 0;
         ready = false;
         finished = false;
         published = false;

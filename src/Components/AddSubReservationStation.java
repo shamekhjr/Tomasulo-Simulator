@@ -45,7 +45,7 @@ public class AddSubReservationStation {
     }
 
     //add instruction to the first free reservation station then updated usedStations
-    public void addInstruction(Instruction instruction, double vJ, double vK, String qJ, String qK) {
+    public void addInstruction(Instruction instruction, Double vJ, Double vK, String qJ, String qK) {
         for (int i = 0; i < size; i++) {
             if (!addSubReservationStationSlots[i].isBusy()) {
                 addSubReservationStationSlots[i].setInstruction(instruction);
@@ -58,7 +58,7 @@ public class AddSubReservationStation {
     //remove an instruction from the reservation station then update usedStations
     public void removeInstruction(int index) {
         addSubReservationStationSlots[index].setInstruction(null);
-        addSubReservationStationSlots[index].setAll("A"+index,false,0,0,"","",false,false);
+        addSubReservationStationSlots[index].setAll("A"+index,false, (double) 0, (double) 0,"","",false,false);
         updateNumOfUsedStationsA();
     }
 
@@ -86,6 +86,10 @@ public class AddSubReservationStation {
             }
         }
         numOfUsedStations = count;
+    }
+
+    public boolean isEmpty() {
+        return numOfUsedStations == 0;
     }
 
     public String toString() {
