@@ -28,14 +28,14 @@ public class Processor {
     int SubILatency;
     int MemLatency;
 
-    public static void main(String[] args) throws IOException {
-        Processor processor = new Processor();
+    public static void main(String[] args) throws IOException, InterruptedException {
+
 
         System.out.println("===========================================");
-        System.out.println("Welcome to the Tomasulo Simulator!");
+        System.out.println("    Welcome to the Tomasulo Simulator!");
         System.out.println("===========================================");
 
-        processor.getUserLatencies();
+        Processor processor = getProcessorSetup();
 
         // parse the code
         processor.codeParser();
@@ -62,33 +62,118 @@ public class Processor {
         MemLatency = 1;
     }
 
-    public void getUserLatencies() {
+    public Processor(int addSubSize, int mulDivSize, int loadBufferSize, int storeBufferSize, int memorySize, int Mul_DLatency, int Div_DLatency, int Add_DLatency, int Sub_DLatency, int DAddLatency, int SubILatency, int MemLatency) {
+        log = "";
+        addSubReservationStation = new AddSubReservationStation(addSubSize);
+        mulDivReservationStation = new MulDivReservationStation(mulDivSize);
+        loadStoreBuffers = new LoadStoreBuffers(loadBufferSize, storeBufferSize);
+        instructionQueue = new InstructionQueue();
+        memory = new Memory(memorySize);
+        registerFile = new RegisterFile();
+        bus = new Bus();
+        this.Mul_DLatency = Mul_DLatency;
+        this.Div_DLatency = Div_DLatency;
+        this.Add_DLatency = Add_DLatency;
+        this.Sub_DLatency = Sub_DLatency;
+        this.DAddLatency = DAddLatency;
+        this.SubILatency = SubILatency;
+        this.MemLatency = MemLatency;
+    }
+
+    private static void printLoadingBar(int currentIteration, int totalIterations) {
+        int barLength = 20;
+        int progress = (int) ((double) currentIteration / totalIterations * barLength);
+
+        System.out.print("\r[");
+        for (int i = 0; i < barLength; i++) {
+            if (i < progress) {
+                System.out.print("=");
+            } else {
+                System.out.print(" ");
+            }
+        }
+        System.out.print("] ");
+
+        // Display different characters for animation
+        switch (currentIteration % 3) {
+            case 0:
+                System.out.print("/");
+                break;
+            case 1:
+                System.out.print("|");
+                break;
+            case 2:
+                System.out.print("\\");
+                break;
+        }
+
+        // Clear any characters after the loading bar
+        System.out.print("  ");
+    }
+
+
+
+    public static Processor getProcessorSetup() throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Enter the latencies of each instruction (in cycles) ...");
 
         System.out.print("Memory Latency: ");
-        MemLatency = scanner.nextInt();
+        int MemLatency = scanner.nextInt();
 
         System.out.print("ADD.D Latency: ");
-        Add_DLatency = scanner.nextInt();
+        int Add_DLatency = scanner.nextInt();
 
         System.out.print("SUB.D Latency: ");
-        Sub_DLatency = scanner.nextInt();
+        int Sub_DLatency = scanner.nextInt();
 
         System.out.print("MUL.D Latency: ");
-        Mul_DLatency = scanner.nextInt();
+        int Mul_DLatency = scanner.nextInt();
 
         System.out.print("DIV.D Latency: ");
-        Div_DLatency = scanner.nextInt();
+        int Div_DLatency = scanner.nextInt();
 
         System.out.print("DADD Latency: ");
-        DAddLatency = scanner.nextInt();
+        int DAddLatency = scanner.nextInt();
 
         System.out.print("SUBI Latency: ");
-        SubILatency = scanner.nextInt();
+        int SubILatency = scanner.nextInt();
 
         System.out.println("Latencies updated successfully!");
+
+        System.out.println("Enter the size of each component ...");
+
+        System.out.print("Add/Sub Reservation Station: ");
+        int addSubReservationStationSize = scanner.nextInt();
+
+        System.out.print("Mul/Div Reservation Station: ");
+        int mulDivReservationStationSize = scanner.nextInt();
+
+        System.out.print("Load Buffer: ");
+        int loadBuffersSize = scanner.nextInt();
+
+        System.out.print("Store Buffer: ");
+        int storeBuffersSize = scanner.nextInt();
+
+        System.out.print("Memory Size: ");
+        int memorySize = scanner.nextInt();
+
+        System.out.println("Sizes updated successfully!");
+
+        System.out.println("Setting up the processor ...");
+
+        int totalIterations = 100;
+
+        for (int i = 0; i < totalIterations; i++) {
+            printLoadingBar(i, totalIterations);
+            Thread.sleep(18); // Adjust the sleep duration to control the speed of the loading animation
+        }
+
+        System.out.println("Processor setup complete!");
+
+
+
+        return new Processor(addSubReservationStationSize, mulDivReservationStationSize, loadBuffersSize, storeBuffersSize, memorySize, Mul_DLatency, Div_DLatency, Add_DLatency, Sub_DLatency, DAddLatency, SubILatency, MemLatency);
     }
 
     private static String[] splitInstruction(String instruction) {
