@@ -55,11 +55,15 @@ public class AddSubReservationStation {
             }
         }
     }
-    //remove an instruction from the reservation station then update usedStations
-    public void removeInstruction(int index) {
-        addSubReservationStationSlots[index].setInstruction(null);
-        addSubReservationStationSlots[index].setAll("A"+index,false, null, null,null,null,false,false, false);
-        updateNumOfUsedStationsA();
+    //remove an instruction that takes tag as input from the reservation station then update usedStations
+    public void removeInstruction(String tag) {
+        for (int i = 0; i < size; i++) {
+            if (addSubReservationStationSlots[i].getTag().equals(tag)) {
+                addSubReservationStationSlots[i].setAll(tag,false,null,null,null,null,false,false, false);
+                updateNumOfUsedStationsA();
+                break;
+            }
+        }
     }
 
 

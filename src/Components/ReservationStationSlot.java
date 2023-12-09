@@ -154,6 +154,10 @@ public class ReservationStationSlot {
         this.published = published;
     }
 
+    public void updateReservationStation(String tag) {
+
+    }
+
     public void reset() {
         instruction = null;
         tag = null;

@@ -158,12 +158,13 @@ public class LoadStoreSlot {
         timeLeft--;
     }
 
-    public void setAll(String tag, boolean busy, Double v, String q, boolean finished, boolean published) {
+    public void setAll(String tag, boolean busy, Double v, String q, boolean ready, boolean finished, boolean published) {
         this.tag = tag;
         this.timeLeft = instruction.getLatency();
         this.busy = busy;
         this.v = v;
         this.q = q;
+        this.ready = ready;
         this.finished = finished;
         this.published = published;
     }

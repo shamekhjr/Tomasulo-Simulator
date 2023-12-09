@@ -1,5 +1,9 @@
 import Components.*;
 import Enums.Operation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.regex.*;
 import java.io.BufferedReader;
@@ -155,6 +159,7 @@ public class Processor {
         }
 
         if (stall) { // stalled from branch
+            System.out.println("Instruction (" + instruction.getInstructionString() + ") is stalled");
             stall = false;
             return;
         }
@@ -259,7 +264,6 @@ public class Processor {
     }
 
     public void execute() {
-        // TODO: talk about how to handle branches
         // check if operands ready
 
         for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
@@ -284,6 +288,7 @@ public class Processor {
 
                 if(e.isReady()) {
                     e.getInstruction().setExecutionStartCycle(cycleCounter);
+                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is ready to execute");
                 } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: " + e.getQ());
             }
@@ -292,15 +297,18 @@ public class Processor {
                 if(e.getTimeLeft() == 0) {
                     int effectiveAddress = e.getInstruction().getEffectiveAddress();
                     if(e.isLoad()){ // no exec in load
-                        //TODO: do in writeback
-                        //registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
-                        //registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), null);
+
+                        e.setResult(memory.getMemoryItem(effectiveAddress));
+                        e.getInstruction().setResult(memory.getMemoryItem(effectiveAddress));
+
                     } else {
-                        //TODO: do in writeback
-                        //memory.setMemoryItem(effectiveAddress, e.getV());
+
+                        e.setResult(e.getV());
+                        e.getInstruction().setResult(e.getV());
                     }
                     e.setFinished(true);
                     e.getInstruction().setExecutionEndCycle(cycleCounter);
+                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " has finished executing");
                 } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is executing, " + e.getTimeLeft() + " cycles left");
             }
@@ -345,6 +353,27 @@ public class Processor {
         }
     }
 
+    private void updateRegisterFileFromBus() {
+        if (bus.isPopulated()) {
+
+            //update each register in the register file
+            for (Register reg : registerFile.getGpRegisters()) {
+                if (reg.getQ() != null && reg.getQ().equals(bus.getTag())) {
+                    reg.setValue(bus.getValue());
+                    reg.setQ(null);
+                }
+            }
+
+            for (Register reg : registerFile.getFpRegisters()) {
+                if (reg.getQ() != null && reg.getQ().equals(bus.getTag())) {
+                    reg.setValue(bus.getValue());
+                    reg.setQ(null);
+                }
+            }
+
+        }
+    }
+
     private void executionLoopOperations(ReservationStationSlot e) {
         if(e.isBusy()){
             if (!e.isReady()) {
@@ -352,6 +381,7 @@ public class Processor {
 
                 if(e.isReady()) {
                     e.getInstruction().setExecutionStartCycle(cycleCounter);
+                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is ready to execute");
                 } else {
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
@@ -361,11 +391,13 @@ public class Processor {
                 e.decrementTimeLeft();
                 if (e.getTimeLeft() == 0) {
                     e.setResult(calculate(e));
-                    if (e.getResult() == 1) {
+                    e.getInstruction().setResult(calculate(e));
+                    if (e.getInstruction().getOperation() == Operation.BNEZ && e.getResult() == 1) {
                         instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
                     }
                     e.setFinished(true);
                     e.getInstruction().setExecutionEndCycle(cycleCounter);
+                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing");
                 } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
             }
@@ -395,16 +427,132 @@ public class Processor {
         return 0.0;
     }
 
+    private HashMap<String,Integer> updateINHashMap(HashMap<String, Integer> instructionNeeds, ReservationStationSlot e) {
+
+        if (e.getqJ() != null || e.getqK() != null) { //it hasn't started executing yet
+            if (e.getqJ() != null) {
+                if (instructionNeeds.containsKey(e.getqJ())) {
+                    instructionNeeds.put(e.getqJ(), instructionNeeds.get(e.getqJ()) + 1);
+                } else {
+                    instructionNeeds.put(e.getqJ(), 1);
+                }
+            }
+
+            if (e.getqK() != null) {
+                if (instructionNeeds.containsKey(e.getqK())) {
+                    instructionNeeds.put(e.getqK(), instructionNeeds.get(e.getqK()) + 1);
+                } else {
+                    instructionNeeds.put(e.getqK(), 1);
+                }
+            }
+        }
+
+        return instructionNeeds;
+    }
+
 
     public void writeBack() {
         //TODO: check if instruction has finished executing, if yes, check if it has finished in this cycle
         //TODO: if yes, do not write back and wait one more cycle
         //TODO: count first all the instructions that can write back in this cycle and prioritize
+        //TODO: write back loads and stores
 
-        // write back to register file
+        //init counter to see how many want to publish, we choose based on "usefulness"
+        //if same usefulness, random/FIFO
+        int countFinished = 0;
+
+        //store how many times each label is needed in a HashMap
+        HashMap<String, Integer> instructionNeeds = new HashMap<>();
+        HashMap<String, Instruction> finishedInstructions = new HashMap<>();
+        HashSet<Instruction> readyStores = new HashSet<>();
+
+
+        for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
+            instructionNeeds = updateINHashMap(instructionNeeds, e);
+            if(e.isFinished() && !e.isPublished() && e.getInstruction().getExecutionEndCycle() < cycleCounter && e.getInstruction().getOperation() != Operation.BNEZ) {
+                countFinished++;
+                finishedInstructions.put(e.getTag(), e.getInstruction());
+            }
+        }
+
+        for(ReservationStationSlot e : mulDivReservationStation.getMulDivReservationStationSlots()) {
+            instructionNeeds = updateINHashMap(instructionNeeds, e);
+            if(e.isFinished() && !e.isPublished() && e.getInstruction().getExecutionEndCycle() < cycleCounter) {
+                countFinished++;
+                finishedInstructions.put(e.getTag(), e.getInstruction());
+            }
+        }
+
+        for(LoadStoreSlot e : loadStoreBuffers.getLoadSlots()) {
+            if(e.isFinished() && !e.isPublished() && e.getInstruction().getExecutionEndCycle() < cycleCounter) {
+
+                countFinished++;
+                finishedInstructions.put(e.getTag(), e.getInstruction());
+            }
+        }
+
+        for (LoadStoreSlot e : loadStoreBuffers.getStoreSlots()) {
+            if(e.isFinished() && !e.isPublished() && e.getInstruction().getExecutionEndCycle() < cycleCounter) {
+                readyStores.add(e.getInstruction());
+            }
+        }
+
+        if (countFinished == 1) {
+            //key value pair containing the only element in the hashmap
+            HashMap.Entry<String, Instruction> finishedInstruction = finishedInstructions.entrySet().iterator().next();
+
+            //put the tag and the value on the bus
+            bus.publish(finishedInstruction.getKey(), finishedInstruction.getValue().getResult());
+            finishedInstruction.getValue().setPublishCycle(cycleCounter);
+            instructionQueue.modifyInstruction(finishedInstruction.getValue().getIndex(), finishedInstruction.getValue());
+
+            //remove the instruction from the reservation station
+            addSubReservationStation.removeInstruction(finishedInstruction.getKey());
+            mulDivReservationStation.removeInstruction(finishedInstruction.getKey());
+            loadStoreBuffers.removeLoadInstruction(finishedInstruction.getKey());
+
+
+        } else {
+
+        }
+
+        if (readyStores.size() == 1) {
+            //key value pair containing the only element in the hashmap
+            Instruction instrToStore = readyStores.iterator().next();
+            //store in the memory
+            memory.setMemoryItem(instrToStore.getEffectiveAddress(), instrToStore.getResult());
+            instrToStore.setPublishCycle(cycleCounter);
+            instructionQueue.modifyInstruction(instrToStore.getIndex(), instrToStore);
+
+            //remove the instruction from the reservation station
+            loadStoreBuffers.removeStoreInstruction(instrToStore.getLabel());
+
+        } else {
+
+            //FIFO
+            //loop on instruction queue and see if the instruction is a store
+            //if yes, this is the one i will write to memory
+
+            for (Instruction instr : instructionQueue.getInstructions()) {
+                if (instr.getOperation() == Operation.S_D) {
+                    if (readyStores.contains(instr)) {
+                        memory.setMemoryItem(instr.getEffectiveAddress(), instr.getResult());
+                        instr.setPublishCycle(cycleCounter);
+                        instructionQueue.modifyInstruction(instr.getIndex(), instr);
+                        loadStoreBuffers.removeStoreInstruction(instr.getLabel());
+                        break;
+                    }
+                }
+            }
+
+        }
+
 
         // update reservation stations from bus
         updateReservationSlotsFromBus();
+
+        // update register file from bus
+        updateRegisterFileFromBus();
     }
 
     public static Processor getProcessorSetup() throws InterruptedException {
@@ -523,6 +671,7 @@ public class Processor {
         try {
             // load text from Code/code.txt
             BufferedReader br = new BufferedReader(new FileReader("Code/code.txt"));
+            int instrCounter = 0;
 
             Instruction currentInstruction;
             String line;
@@ -679,7 +828,8 @@ public class Processor {
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
                     }
                 }
-                currentInstruction = new Instruction(isFPop, isMEMop, latency, operation, sourceOperand, destinationOperand, targetOperand, immediateValue, effectiveAddress, label, jumpLabel, line);
+
+                currentInstruction = new Instruction(isFPop, isMEMop, latency, operation, sourceOperand, destinationOperand, targetOperand, immediateValue, effectiveAddress, label, jumpLabel, line, instrCounter++);
                 instructionQueue.addInstruction(currentInstruction);
             }
         } catch(Exception e) {

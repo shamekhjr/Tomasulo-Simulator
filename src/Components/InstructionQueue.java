@@ -55,6 +55,14 @@ public class InstructionQueue {
         currentIndex = labels.get(label);
     }
 
+    public void modifyInstruction(int index, Instruction instruction) {
+        instructions.set(index, instruction);
+    }
+
+    public ArrayList<Instruction> getInstructions() {
+        return instructions;
+    }
+
     public void print() {
         for (Instruction instruction : instructions) {
             System.out.println(instruction);

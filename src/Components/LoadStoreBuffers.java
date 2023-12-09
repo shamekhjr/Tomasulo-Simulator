@@ -136,7 +136,7 @@ public class LoadStoreBuffers {
         for (int i = 0; i < loadBufferSize; i++) {
             if (!loadSlots[i].isBusy()) {
                 loadSlots[i].setInstruction(instruction);
-                loadSlots[i].setAll("L"+i,true, null,null, false, false);
+                loadSlots[i].setAll("L"+i,true, null,null, true, false, false);
                 updateNumOfUsedLoadSlots();
                 break;
             }
@@ -147,23 +147,34 @@ public class LoadStoreBuffers {
         for (int i = 0; i < storeBufferSize; i++) {
             if (!storeSlots[i].isBusy()) {
                 storeSlots[i].setInstruction(instruction);
-                storeSlots[i].setAll("S"+i,true,v,q,false,false);
+                storeSlots[i].setAll("S"+i,true,v,q,false,false, false);
                 updateNumOfUsedStoreSlots();
                 break;
             }
         }
     }
 
-    public void removeLoadInstruction(int index, Double v, String q, boolean finished, boolean published) {
-        loadSlots[index].setInstruction(null);
-        loadSlots[index].setAll("L"+index,false, null,null,finished,published);
-        updateNumOfUsedLoadSlots();
+    //remove an instruction that takes tag as input from the reservation station then update usedStations
+    public void removeLoadInstruction(String tag) {
+        for (int i = 0; i < loadBufferSize; i++) {
+            if (loadSlots[i].getTag().equals(tag)) {
+                loadSlots[i].setInstruction(null);
+                loadSlots[i].setAll(tag,false, null,null, false, false, false);
+                updateNumOfUsedLoadSlots();
+                break;
+            }
+        }
     }
 
-    public void removeStoreInstruction(int index, int v, String q, boolean finished, boolean published) {
-        storeSlots[index].setInstruction(null);
-        storeSlots[index].setAll("S"+index,false, null,null, finished, published);
-        updateNumOfUsedStoreSlots();
+    public void removeStoreInstruction(String tag) {
+        for (int i = 0; i < storeBufferSize; i++) {
+            if (storeSlots[i].getTag().equals(tag)) {
+                storeSlots[i].setInstruction(null);
+                storeSlots[i].setAll(tag,false, null,null, false, false, false);
+                updateNumOfUsedStoreSlots();
+                break;
+            }
+        }
     }
 
     public boolean isEmpty() {

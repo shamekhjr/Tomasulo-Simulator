@@ -55,12 +55,18 @@ public class MulDivReservationStation {
             }
         }
     }
-    //remove an instruction from the reservation station then update usedStations
-    public void removeInstruction(int index) {
-        mulDivReservationStationSlots[index].setInstruction(null);
-        mulDivReservationStationSlots[index].setAll("M" + index, false, null, null, null, null, false, false, false);
-        updateNumOfUsedStationsM();
+    //remove an instruction that takes tag as input from the reservation station then update usedStations
+    public void removeInstruction(String tag) {
+        for (int i = 0; i < size; i++) {
+            if (mulDivReservationStationSlots[i].getTag().equals(tag)) {
+                mulDivReservationStationSlots[i].setInstruction(null);
+                mulDivReservationStationSlots[i].setAll(tag,false,null,null,null,null,false,false, false);
+                updateNumOfUsedStationsM();
+                break;
+            }
+        }
     }
+
 
     //update the number of used stations
     public void updateNumOfUsedStationsM() {

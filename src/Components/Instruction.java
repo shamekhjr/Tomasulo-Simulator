@@ -15,14 +15,15 @@ public class Instruction {
     private String label; //law el instruction odamha label 3ashan nerga3 lel label da law 3ayz a3ml branch
     private String jumpLabel;
     private String instructionString;
-
+    private Double result;
+    private int index;
     private Integer issueCycle;
     private Integer executionStartCycle;
     private Integer executionEndCycle;
     private Integer publishCycle; //these will be initially set to -ve values until updated
 
     //new constructor with the new variables
-    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,int immediateValue, int effectiveAddress, String label, String jumpLabel, String instructionString) {
+    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,int immediateValue, int effectiveAddress, String label, String jumpLabel, String instructionString, int index) {
         this.isFPop = isFPop;
         this.isMEMop = isMEMop;
         this.latency = latency;
@@ -39,6 +40,8 @@ public class Instruction {
         this.executionEndCycle = null;
         this.publishCycle = null;
         this.instructionString = instructionString;
+        this.result = null;
+        this.index = index;
 
     }
 
@@ -95,7 +98,7 @@ public class Instruction {
         this.issueCycle = issueCycle;
     }
 
-    public int getExecutionStartCycle() {
+    public Integer getExecutionStartCycle() {
         return executionStartCycle;
     }
 
@@ -103,7 +106,7 @@ public class Instruction {
         this.executionStartCycle = executionStartCycle;
     }
 
-    public int getExecutionEndCycle() {
+    public Integer getExecutionEndCycle() {
         return executionEndCycle;
     }
 
@@ -111,7 +114,7 @@ public class Instruction {
         this.executionEndCycle = executionEndCycle;
     }
 
-    public int getPublishCycle() {
+    public Integer getPublishCycle() {
         return publishCycle;
     }
 
@@ -122,6 +125,19 @@ public class Instruction {
     public String getInstructionString() {
         return instructionString;
     }
+
+    public Double getResult() {
+        return result;
+    }
+
+    public void setResult(Double result) {
+        this.result = result;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
 
     public String toString() {
         return "Instruction{" +
