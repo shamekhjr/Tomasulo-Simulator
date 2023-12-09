@@ -136,14 +136,14 @@ public class LoadStoreBuffers {
         for (int i = 0; i < loadBufferSize; i++) {
             if (!loadSlots[i].isBusy()) {
                 loadSlots[i].setInstruction(instruction);
-                loadSlots[i].setAll("L"+i,true, 0.0,"nan", false, false);
+                loadSlots[i].setAll("L"+i,true, null,null, false, false);
                 updateNumOfUsedLoadSlots();
                 break;
             }
         }
     }
 
-    public void addStoreInstruction(Instruction instruction, double v, String q) {
+    public void addStoreInstruction(Instruction instruction, Double v, String q) {
         for (int i = 0; i < storeBufferSize; i++) {
             if (!storeSlots[i].isBusy()) {
                 storeSlots[i].setInstruction(instruction);
@@ -156,13 +156,13 @@ public class LoadStoreBuffers {
 
     public void removeLoadInstruction(int index, Double v, String q, boolean finished, boolean published) {
         loadSlots[index].setInstruction(null);
-        loadSlots[index].setAll("L"+index,false, (double) 0,"",finished,published);
+        loadSlots[index].setAll("L"+index,false, null,null,finished,published);
         updateNumOfUsedLoadSlots();
     }
 
     public void removeStoreInstruction(int index, int v, String q, boolean finished, boolean published) {
         storeSlots[index].setInstruction(null);
-        storeSlots[index].setAll("S"+index,false, (double) 0,"", finished, published);
+        storeSlots[index].setAll("S"+index,false, null,null, finished, published);
         updateNumOfUsedStoreSlots();
     }
 

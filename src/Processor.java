@@ -108,7 +108,7 @@ public class Processor {
             Register regSrc1 = registerFile.getRegister(src1);
             Register regSrc2 = registerFile.getRegister(src2);
 
-            if (regSrc1.getQ().equals("0")) { // src1 is ready
+            if (regSrc1.getQ() == null) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
             } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())){
                 operands.setVj(bus.getValue());
@@ -116,7 +116,7 @@ public class Processor {
                 operands.setQj(regSrc1.getQ());
             }
 
-            if (regSrc2.getQ().equals("0")) { // src2 is ready
+            if (regSrc2.getQ() == null) { // src2 is ready
                 operands.setVk(regSrc2.getValue());
             } else if (bus.isPopulated() && bus.getTag().equals(regSrc2.getQ())) {
                 operands.setVk(bus.getValue());
@@ -129,7 +129,7 @@ public class Processor {
             String src1 = instruction.getSourceOperand();
             Register regSrc1 = registerFile.getRegister(src1);
 
-            if (regSrc1.getQ().equals("0")) { // src1 is ready
+            if (regSrc1.getQ() == null) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
             } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
                 operands.setVj(bus.getValue());
@@ -206,12 +206,12 @@ public class Processor {
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
 
-                    if (regSrc1.getQ().equals("0")) { // src1 is ready
-                        loadStoreBuffers.addStoreInstruction(instruction, regSrc1.getValue(), "0");
+                    if (regSrc1.getQ() == null) { // src1 is ready
+                        loadStoreBuffers.addStoreInstruction(instruction, regSrc1.getValue(), null);
                     } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
-                        loadStoreBuffers.addStoreInstruction(instruction, bus.getValue(), "0");
+                        loadStoreBuffers.addStoreInstruction(instruction, bus.getValue(), null);
                     } else {
-                        loadStoreBuffers.addStoreInstruction(instruction, -1, regSrc1.getQ());
+                        loadStoreBuffers.addStoreInstruction(instruction, null, regSrc1.getQ());
                     }
 
                     isIssued = true;
@@ -227,12 +227,12 @@ public class Processor {
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
 
-                    if (regSrc1.getQ().equals("0")) { // src1 is ready
-                        addSubReservationStation.addInstruction(instruction, regSrc1.getValue(), (double) 0, "0", "0"); //qJ howa el mohem
+                    if (regSrc1.getQ() == null) { // src1 is ready
+                        addSubReservationStation.addInstruction(instruction, regSrc1.getValue(), null, null, null); //qJ howa el mohem
                     } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
-                        addSubReservationStation.addInstruction(instruction, bus.getValue(), 0.0, "0", "0"); //qK howa el mohem
+                        addSubReservationStation.addInstruction(instruction, bus.getValue(), null, null, null); //qK howa el mohem
                     } else {
-                        addSubReservationStation.addInstruction(instruction, (double) -1, (double) 0, regSrc1.getQ(), "0"); //qJ howa el mohem
+                        addSubReservationStation.addInstruction(instruction, null, null, regSrc1.getQ(), null); //qJ howa el mohem
                     }
 
                     isIssued = true;
@@ -242,10 +242,8 @@ public class Processor {
 
         if (isIssued) {
             instructionQueue.incrementIndex();
-            //TODO: use the toString of the instruction
             System.out.println("Instruction (" + instruction.getInstructionString() + ") is issued");
         } else {
-            //TODO: use the toString of the instruction
             System.out.println("Instruction (" + instruction.getInstructionString() + ") could not be issued");
         }
 
@@ -286,14 +284,14 @@ public class Processor {
                     int effectiveAddress = e.getInstruction().getEffectiveAddress();
                     if(e.isLoad()){
                         registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
-                        registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), "0");
+                        registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), null);
                     } else {
                         memory.setMemoryItem(effectiveAddress, registerFile.getRegister(e.getInstruction().getSourceOperand()).getValue());
                     }
                     e.setFinished(true);
                     e.getInstruction().setExecutionEndCycle(cycleCounter);
-                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" has finished executing");
-                } else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " has finished executing");
+                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is executing, " + e.getTimeLeft() + " cycles left");
             }
         }
 
@@ -334,7 +332,7 @@ public class Processor {
                 return entry.getvJ() / entry.getvK();
             }
             case BNEZ -> {
-                return entry.getvJ() != 0 ? 1.0 : 0.0;
+                return entry.getvJ() != null ? 1.0 : 0.0;
             }
         }
         return 0.0;

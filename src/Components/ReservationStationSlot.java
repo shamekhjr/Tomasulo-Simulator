@@ -16,14 +16,14 @@ public class ReservationStationSlot {
 
     public ReservationStationSlot() {
         instruction = null;
-        tag = "";
+        tag = null;
         timeLeft = 0;
         busy = false;
-        vJ = (double) 0;
-        vK = (double) 0;
-        qJ = "";
-        qK = "";
-        result = (double) 0;
+        vJ = null;
+        vK = null;
+        qJ = null;
+        qK = null;
+        result = null;
         ready = false;
         finished = false;
         published = false;
@@ -73,7 +73,7 @@ public class ReservationStationSlot {
         this.busy = busy;
     }
 
-    public double getvJ() {
+    public Double getvJ() {
         return vJ;
     }
 
@@ -118,7 +118,7 @@ public class ReservationStationSlot {
     }
 
     public void setReady() {
-        this.ready = (qJ.equals("0") && qK.equals("0")); // I have Some Doubts About this line
+        this.ready = (qJ == null && qK == null); // I have Some Doubts About this line
     }
 
     public boolean isFinished() {
@@ -156,14 +156,14 @@ public class ReservationStationSlot {
 
     public void reset() {
         instruction = null;
-        tag = "";
+        tag = null;
         timeLeft = 0;
         busy = false;
-        vJ = (double) 0;
-        vK = (double) 0;
-        qJ = "";
-        qK = "";
-        result = (double) 0;
+        vJ = null;
+        vK = null;
+        qJ = null;
+        qK = null;
+        result = null;
         ready = false;
         finished = false;
         published = false;

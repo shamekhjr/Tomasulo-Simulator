@@ -58,7 +58,7 @@ public class MulDivReservationStation {
     //remove an instruction from the reservation station then update usedStations
     public void removeInstruction(int index) {
         mulDivReservationStationSlots[index].setInstruction(null);
-        mulDivReservationStationSlots[index].setAll("M" + index, false, (double) 0, (double) 0, "", "", false, false, false);
+        mulDivReservationStationSlots[index].setAll("M" + index, false, null, null, null, null, false, false, false);
         updateNumOfUsedStationsM();
     }
 
@@ -80,8 +80,6 @@ public class MulDivReservationStation {
     public boolean isEmpty() {
         return numOfUsedStations == 0;
     }
-
-
 
     public String toString() {
         String s = "";

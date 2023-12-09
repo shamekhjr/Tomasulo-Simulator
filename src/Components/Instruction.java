@@ -16,10 +16,10 @@ public class Instruction {
     private String jumpLabel;
     private String instructionString;
 
-    private int issueCycle;
-    private int executionStartCycle;
-    private int executionEndCycle;
-    private int publishCycle; //these will be initially set to -ve values until updated
+    private Integer issueCycle;
+    private Integer executionStartCycle;
+    private Integer executionEndCycle;
+    private Integer publishCycle; //these will be initially set to -ve values until updated
 
     //new constructor with the new variables
     public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,int immediateValue, int effectiveAddress, String label, String jumpLabel, String instructionString) {
@@ -34,10 +34,10 @@ public class Instruction {
         this.immediateValue = immediateValue;
         this.label = label;
         this.jumpLabel = jumpLabel;
-        this.issueCycle = -1;
-        this.executionStartCycle = -1;
-        this.executionEndCycle = -1;
-        this.publishCycle = -1;
+        this.issueCycle = null;
+        this.executionStartCycle = null;
+        this.executionEndCycle = null;
+        this.publishCycle = null;
         this.instructionString = instructionString;
 
     }

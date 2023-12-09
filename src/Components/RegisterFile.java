@@ -10,8 +10,8 @@ public class RegisterFile {
         gpRegisters = new Register[NUM_OF_GP_REGISTERS];
         fpRegisters = new Register[NUM_OF_FP_REGISTERS];
         for (int i = 0; i < NUM_OF_FP_REGISTERS; i++) {
-            gpRegisters[i] = new Register("R" + i, "0");
-            fpRegisters[i] = new Register("F" + i, "0");
+            gpRegisters[i] = new Register("R" + i, null);
+            fpRegisters[i] = new Register("F" + i, null);
         }
     }
 

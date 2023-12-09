@@ -58,7 +58,7 @@ public class AddSubReservationStation {
     //remove an instruction from the reservation station then update usedStations
     public void removeInstruction(int index) {
         addSubReservationStationSlots[index].setInstruction(null);
-        addSubReservationStationSlots[index].setAll("A"+index,false, (double) 0, (double) 0,"","",false,false, false);
+        addSubReservationStationSlots[index].setAll("A"+index,false, null, null,null,null,false,false, false);
         updateNumOfUsedStationsA();
     }
 

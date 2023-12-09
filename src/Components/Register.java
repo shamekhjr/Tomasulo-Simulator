@@ -8,7 +8,7 @@ public class Register {
     public Register() {
         value = 0;
         name = "";
-        q = "";
+        q = null;
     }
 
     public Register(String name, String q) {

@@ -7,8 +7,8 @@ public class Bus {
 
     public Bus() {
         populated = false;
-        value = 0.0;
-        tag = "";
+        value = null;
+        tag = null;
     }
 
     public Bus(boolean populated, Double value, String tag) {

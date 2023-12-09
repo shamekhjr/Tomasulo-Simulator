@@ -21,12 +21,12 @@ public class LoadStoreSlot {
 
     public LoadStoreSlot() {
         instruction = null;
-        tag = "";
+        tag = null;
         timeLeft = 0;
         busy = false;
-        v = (double) 0;
-        q = "0";
-        result = (double) 0;
+        v = null;
+        q = null;
+        result = null;
         ready = false;
         finished = false;
         published = false;
@@ -40,7 +40,7 @@ public class LoadStoreSlot {
         this.effectiveAddress = instruction.getEffectiveAddress();
         this.v = v;
         this.q = q;
-        this.result = 0.0;
+        this.result = null;
         this.ready = false;
         this.finished = false;
         this.published = false;
@@ -125,7 +125,7 @@ public class LoadStoreSlot {
         if (isLoad) {
             this.ready = true;
         } else {
-            if (q.equals("0")) {
+            if (q == null) {
                 this.ready = true;
             }
         }
