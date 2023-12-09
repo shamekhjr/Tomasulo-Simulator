@@ -3,7 +3,6 @@ import Enums.Operation;
 import java.util.Scanner;
 import java.util.regex.*;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -363,7 +362,7 @@ public class Processor {
         }
     }
 
-    public void codeParser() throws FileNotFoundException, IOException {
+    public void codeParser() throws IOException {
         /** Instructions Format:
          *  1- 4 token format
          *      = INSTR RD, RS, RT
@@ -382,16 +381,16 @@ public class Processor {
 
             Instruction currentInstruction;
             String line;
-            boolean isFPop = false;
-            boolean isMEMop = false;
+            boolean isFPop;
+            boolean isMEMop;
             int latency = 1;
-            Operation operation = null;
-            String sourceOperand = null;
-            String destinationOperand = null;
-            String targetOperand = null;
+            Operation operation;
+            String sourceOperand;
+            String destinationOperand;
+            String targetOperand;
             int effectiveAddress = -1;
-            String label = null;
-            String jumpLabel = null;
+            String label;
+            String jumpLabel;
             int immediateValue = NON_IMMEDIATE;
 
             boolean fourToken = false;
@@ -422,12 +421,7 @@ public class Processor {
                     throw new Exception("CODE ERROR, Error in line: " + line);
                 }
                 // check if labeled
-                boolean labeled = false;
-                if (tokens[0].endsWith(":")) {
-                    labeled = true;
-                } else {
-                    label = null;
-                }
+                boolean labeled = tokens[0].endsWith(":");
 
                 // check if 4 token format
                 if (tokens.length == 4 && !labeled || labeled && tokens.length == 5) {
@@ -452,127 +446,93 @@ public class Processor {
                 // L.D     F30,       100
 
                 switch (currInstruction) {
-                    case "L.D":
-                        isFPop = false;
+                    case "L.D" -> {
                         isMEMop = true;
                         latency = MemLatency;
                         operation = Operation.L_D;
-                        sourceOperand = null;
                         destinationOperand = labeled ? tokens[2] : tokens[1];
-                        targetOperand = null;
                         effectiveAddress = Integer.parseInt(labeled ? tokens[3] : tokens[2]);
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                    case "S.D":
-                        isFPop = false;
+                    }
+                    case "S.D" -> {
                         isMEMop = true;
                         latency = MemLatency;
                         operation = Operation.S_D;
                         sourceOperand = labeled ? tokens[2] : tokens[1];
-                        destinationOperand = null;
-                        targetOperand = null;
                         effectiveAddress = Integer.parseInt(labeled ? tokens[3] : tokens[2]);
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                    case "ADD.D":
+                    }
+                    case "ADD.D" -> {
                         isFPop = true;
-                        isMEMop = false;
                         latency = Add_DLatency;
                         operation = Operation.ADD_D;
                         sourceOperand = labeled ? tokens[3] : tokens[2];
                         destinationOperand = labeled ? tokens[2] : tokens[1];
                         targetOperand = labeled ? tokens[4] : tokens[3];
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                    case "SUB.D":
+                    }
+                    case "SUB.D" -> {
                         isFPop = true;
-                        isMEMop = false;
                         latency = Sub_DLatency;
                         operation = Operation.SUB_D;
                         sourceOperand = labeled ? tokens[3] : tokens[2];
                         destinationOperand = labeled ? tokens[2] : tokens[1];
                         targetOperand = labeled ? tokens[4] : tokens[3];
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                    case "MUL.D":
+                    }
+                    case "MUL.D" -> {
                         isFPop = true;
-                        isMEMop = false;
                         latency = Mul_DLatency;
                         operation = Operation.MUL_D;
                         sourceOperand = labeled ? tokens[3] : tokens[2];
                         destinationOperand = labeled ? tokens[2] : tokens[1];
                         targetOperand = labeled ? tokens[4] : tokens[3];
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                    case "DIV.D":
+                    }
+                    case "DIV.D" -> {
                         isFPop = true;
-                        isMEMop = false;
                         latency = Div_DLatency;
                         operation = Operation.DIV_D;
                         sourceOperand = labeled ? tokens[3] : tokens[2];
                         destinationOperand = labeled ? tokens[2] : tokens[1];
                         targetOperand = labeled ? tokens[4] : tokens[3];
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                        // 0    1   2
-                        //BNEZ F1, Label
-                    case "BNEZ":
-                        isFPop = false;
-                        isMEMop = false;
-                        latency = 1;
+                    }
+                    // 0    1   2
+                    //BNEZ F1, Label
+                    case "BNEZ" -> {
                         operation = Operation.BNEZ;
                         sourceOperand = labeled ? tokens[2] : tokens[1];
-                        destinationOperand = null;
-                        targetOperand = null;
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
                         jumpLabel = labeled ? tokens[3] : tokens[2];
-
                         if (!instructionQueue.getLabels().containsKey(jumpLabel)) {
                             throw new Exception("CODE ERROR, Label: " + jumpLabel + " does not exist");
                         }
-
-                        break;
-                        //BNEZ, DADD, ADDI, SUBI
-                    case "DADD":
-                        isFPop = false;
-                        isMEMop = false;
+                    }
+                    //BNEZ, DADD, ADDI, SUBI
+                    case "DADD" -> {
                         latency = DAddLatency;
                         operation = Operation.DADD;
                         sourceOperand = labeled ? tokens[3] : tokens[2];
                         destinationOperand = labeled ? tokens[2] : tokens[1];
                         targetOperand = labeled ? tokens[4] : tokens[3];
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                    case "ADDI":
-                        isFPop = false;
-                        isMEMop = false;
-                        latency = 1;
+                    }
+                    case "ADDI" -> {
                         operation = Operation.ADDI;
                         sourceOperand = labeled ? tokens[3] : tokens[2];
                         destinationOperand = labeled ? tokens[2] : tokens[1];
-                        targetOperand = null;
                         immediateValue = labeled ? Integer.parseInt(tokens[4]) : Integer.parseInt(tokens[3]);
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
-                    case "SUBI":
-                        isFPop = false;
-                        isMEMop = false;
+                    }
+                    case "SUBI" -> {
                         latency = SubILatency;
                         operation = Operation.SUBI;
                         sourceOperand = labeled ? tokens[3] : tokens[2];
                         destinationOperand = labeled ? tokens[2] : tokens[1];
-                        targetOperand = null;
                         immediateValue = labeled ? Integer.parseInt(tokens[4]) : Integer.parseInt(tokens[3]);
-                        effectiveAddress = -1;
                         label = labeled ? tokens[0].substring(0, tokens[0].length() - 1) : null;
-                        break;
+                    }
                 }
                 currentInstruction = new Instruction(isFPop, isMEMop, latency, operation, sourceOperand, destinationOperand, targetOperand, immediateValue, effectiveAddress, label, jumpLabel, line);
                 instructionQueue.addInstruction(currentInstruction);
@@ -599,15 +559,9 @@ public class Processor {
 
         // Display different characters for animation
         switch (currentIteration % 3) {
-            case 0:
-                System.out.print("/");
-                break;
-            case 1:
-                System.out.print("|");
-                break;
-            case 2:
-                System.out.print("\\");
-                break;
+            case 0 -> System.out.print("/");
+            case 1 -> System.out.print("|");
+            case 2 -> System.out.print("\\");
         }
 
         // Clear any characters after the loading bar

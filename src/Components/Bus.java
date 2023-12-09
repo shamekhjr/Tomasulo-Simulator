@@ -2,16 +2,16 @@ package Components;
 
 public class Bus {
     boolean populated;
-    double value;
+    Double value;
     String tag;
 
     public Bus() {
         populated = false;
-        value = 0;
+        value = 0.0;
         tag = "";
     }
 
-    public Bus(boolean populated, double value, String tag) {
+    public Bus(boolean populated, Double value, String tag) {
         this.populated = populated;
         this.value = value;
         this.tag = tag;
@@ -25,7 +25,7 @@ public class Bus {
         this.populated = populated;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return isPopulated() ? value : null;
     }
 
