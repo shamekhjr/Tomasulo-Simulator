@@ -108,7 +108,7 @@ public class Processor {
             Register regSrc1 = registerFile.getRegister(src1);
             Register regSrc2 = registerFile.getRegister(src2);
 
-            if (regSrc1.getQ() == null) { // src1 is ready
+            if (regSrc1.getQ().equals("0")) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
             } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())){
                 operands.setVj(bus.getValue());
@@ -116,7 +116,7 @@ public class Processor {
                 operands.setQj(regSrc1.getQ());
             }
 
-            if (regSrc2.getQ() == null) { // src2 is ready
+            if (regSrc2.getQ().equals("0")) { // src2 is ready
                 operands.setVk(regSrc2.getValue());
             } else if (bus.isPopulated() && bus.getTag().equals(regSrc2.getQ())) {
                 operands.setVk(bus.getValue());
@@ -129,7 +129,7 @@ public class Processor {
             String src1 = instruction.getSourceOperand();
             Register regSrc1 = registerFile.getRegister(src1);
 
-            if (regSrc1.getQ() == null) { // src1 is ready
+            if (regSrc1.getQ().equals("0")) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
             } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
                 operands.setVj(bus.getValue());
@@ -206,10 +206,10 @@ public class Processor {
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
 
-                    if (regSrc1.getQ() == null) { // src1 is ready
-                        loadStoreBuffers.addStoreInstruction(instruction, regSrc1.getValue(), null);
+                    if (regSrc1.getQ().equals("0")) { // src1 is ready
+                        loadStoreBuffers.addStoreInstruction(instruction, regSrc1.getValue(), "0");
                     } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
-                        loadStoreBuffers.addStoreInstruction(instruction, bus.getValue(), null);
+                        loadStoreBuffers.addStoreInstruction(instruction, bus.getValue(), "0");
                     } else {
                         loadStoreBuffers.addStoreInstruction(instruction, -1, regSrc1.getQ());
                     }
@@ -227,12 +227,12 @@ public class Processor {
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
 
-                    if (regSrc1.getQ() == null) { // src1 is ready
-                        addSubReservationStation.addInstruction(instruction, regSrc1.getValue(), (double) 0, null, null);
+                    if (regSrc1.getQ().equals("0")) { // src1 is ready
+                        addSubReservationStation.addInstruction(instruction, regSrc1.getValue(), (double) 0, "0", "0"); //qJ howa el mohem
                     } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
-                        addSubReservationStation.addInstruction(instruction, bus.getValue(), 0.0, null, null);
+                        addSubReservationStation.addInstruction(instruction, bus.getValue(), 0.0, "0", "0"); //qK howa el mohem
                     } else {
-                        addSubReservationStation.addInstruction(instruction, (double) -1, (double) 0, regSrc1.getQ(), null);
+                        addSubReservationStation.addInstruction(instruction, (double) -1, (double) 0, regSrc1.getQ(), "0"); //qJ howa el mohem
                     }
 
                     isIssued = true;

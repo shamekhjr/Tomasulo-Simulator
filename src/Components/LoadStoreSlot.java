@@ -25,7 +25,7 @@ public class LoadStoreSlot {
         timeLeft = 0;
         busy = false;
         v = (double) 0;
-        q = "";
+        q = "0";
         result = (double) 0;
         ready = false;
         finished = false;
