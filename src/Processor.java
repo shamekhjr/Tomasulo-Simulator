@@ -296,12 +296,6 @@ public class Processor {
             case BNEZ -> {
                 //TODO Branch Operations
             }
-            case L_D -> {
-                //TODO Load Operations
-            }
-            case S_D -> {
-                //TODO Store Operations
-            }
         }
         return 0.0;
     }
