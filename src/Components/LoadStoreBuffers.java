@@ -136,7 +136,7 @@ public class LoadStoreBuffers {
         for (int i = 0; i < loadBufferSize; i++) {
             if (!loadSlots[i].isBusy()) {
                 loadSlots[i].setInstruction(instruction);
-                loadSlots[i].setAll("L"+i,true, (double) 0,"nan", false, false);
+                loadSlots[i].setAll("L"+i,true, 0.0,"nan", false, false);
                 updateNumOfUsedLoadSlots();
                 break;
             }

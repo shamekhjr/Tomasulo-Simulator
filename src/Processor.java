@@ -257,6 +257,27 @@ public class Processor {
         for(ReservationStationSlot e : mulDivReservationStation.getMulDivReservationStationSlots()) {
             executionLoopOperations(e);
         }
+        for(LoadStoreSlot e : loadStoreBuffers.getLoadSlots()) {
+            if(e.isBusy()){
+                if(!e.isReady()) {
+                    e.setReady();
+                    if(e.isReady()) e.getInstruction().setExecutionStartCycle(cycleCounter);
+                }
+                if(e.isReady() &&!e.isFinished()) {
+                    e.decrementTimeLeft();
+                    if(e.getTimeLeft() == 0) {
+                        int effectiveAddress = e.getInstruction().getEffectiveAddress();
+                        registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
+                        registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), "0");
+                        e.setFinished(true);
+                        e.getInstruction().setExecutionEndCycle(cycleCounter);
+                    }
+                }
+            }
+        }
+        for (LoadStoreSlot e : loadStoreBuffers.getStoreSlots()) {
+            //TODO Store Operation
+        }
         // decrement the cycles left for each instruction in the reservation stations and edit publishCycle in instruction
 
         // calculate result if operands ready
@@ -284,7 +305,7 @@ public class Processor {
             case DADD, ADDI, ADD_D -> {
                 return entry.getvJ() + entry.getvK();
             }
-            case SUBI, SUB_D -> {
+            case SUBI, SUB_D, BNEZ -> {
                 return entry.getvJ() - entry.getvK();
             }
             case MUL_D -> {
@@ -292,9 +313,6 @@ public class Processor {
             }
             case DIV_D -> {
                 return entry.getvJ() / entry.getvK();
-            }
-            case BNEZ -> {
-                //TODO Branch Operations
             }
         }
         return 0.0;
