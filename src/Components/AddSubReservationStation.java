@@ -49,7 +49,7 @@ public class AddSubReservationStation {
         for (int i = 0; i < size; i++) {
             if (!addSubReservationStationSlots[i].isBusy()) {
                 addSubReservationStationSlots[i].setInstruction(instruction);
-                addSubReservationStationSlots[i].setAll("A"+i,true,vJ,vK,qJ,qK,false,false);
+                addSubReservationStationSlots[i].setAll("A"+i,true,vJ,vK,qJ,qK,false,false, false);
                 updateNumOfUsedStationsA();
                 break;
             }
@@ -58,7 +58,7 @@ public class AddSubReservationStation {
     //remove an instruction from the reservation station then update usedStations
     public void removeInstruction(int index) {
         addSubReservationStationSlots[index].setInstruction(null);
-        addSubReservationStationSlots[index].setAll("A"+index,false, (double) 0, (double) 0,"","",false,false);
+        addSubReservationStationSlots[index].setAll("A"+index,false, (double) 0, (double) 0,"","",false,false, false);
         updateNumOfUsedStationsA();
     }
 

@@ -141,7 +141,7 @@ public class ReservationStationSlot {
         timeLeft--;
     }
 
-    public void setAll(String tag, boolean busy, Double vJ, Double vK, String qJ, String qK, boolean finished, boolean published) {
+    public void setAll(String tag, boolean busy, Double vJ, Double vK, String qJ, String qK, boolean finished, boolean published, boolean ready) {
         this.tag = tag;
         this.timeLeft = instruction.getLatency();
         this.busy = busy;

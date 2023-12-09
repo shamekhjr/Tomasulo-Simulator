@@ -49,7 +49,7 @@ public class MulDivReservationStation {
         for (int i = 0; i < size; i++) {
             if (!mulDivReservationStationSlots[i].isBusy()) {
                 mulDivReservationStationSlots[i].setInstruction(instruction);
-                mulDivReservationStationSlots[i].setAll("M"+i,true,vJ,vK,qJ,qK,false,false);
+                mulDivReservationStationSlots[i].setAll("M"+i,true,vJ,vK,qJ,qK,false,false, false);
                 updateNumOfUsedStationsM();
                 break;
             }
@@ -58,7 +58,7 @@ public class MulDivReservationStation {
     //remove an instruction from the reservation station then update usedStations
     public void removeInstruction(int index) {
         mulDivReservationStationSlots[index].setInstruction(null);
-        mulDivReservationStationSlots[index].setAll("M" + index, false, (double) 0, (double) 0, "", "", false, false);
+        mulDivReservationStationSlots[index].setAll("M" + index, false, (double) 0, (double) 0, "", "", false, false, false);
         updateNumOfUsedStationsM();
     }
 

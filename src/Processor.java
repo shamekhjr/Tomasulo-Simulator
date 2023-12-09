@@ -241,7 +241,16 @@ public class Processor {
 
     public void execute() {
         // check if operands ready
-
+        for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
+            e.setReady();
+            if(e.isReady()) {
+                e.decrementTimeLeft();
+                if(e.getTimeLeft() == 0) {
+                    // TODO Evaluation OF Results
+                    e.setFinished(true);
+                }
+            }
+        }
         // decrement the cycles left for each instruction in the reservation stations and edit publishCycle in instruction
 
         // calculate result if operands ready
