@@ -252,12 +252,14 @@ public class Processor {
     public void execute() {
         // check if operands ready
         for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
-            e.setReady();
-            if(e.isReady()) {
-                e.decrementTimeLeft();
-                if(e.getTimeLeft() == 0) {
-                    // TODO Evaluation OF Results
-                    e.setFinished(true);
+            if(e.isBusy()){
+                e.setReady();
+                if(e.isReady()) {
+                    e.decrementTimeLeft();
+                    if(e.getTimeLeft() == 0) {
+                        // TODO Evaluation OF Results
+                        e.setFinished(true);
+                    }
                 }
             }
         }
