@@ -283,7 +283,6 @@ public class Processor {
                         registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
                         registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), "0");
                     } else {
-                        //TODO: check if q is zero
                         //TODO: take mem latency into consideration
                         memory.setMemoryItem(effectiveAddress, registerFile.getRegister(e.getInstruction().getSourceOperand()).getValue());
                     }
