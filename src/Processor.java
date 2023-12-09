@@ -250,6 +250,7 @@ public class Processor {
     }
 
     public void execute() {
+        //TODO: talk about how to handle branches
         // check if operands ready
         for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
             executionLoopOperations(e);
@@ -269,7 +270,6 @@ public class Processor {
     }
 
     private void executionLoopOperations(LoadStoreSlot e) {
-        //TODO: talk about how to handle branches
         if(e.isBusy()) {
             if(!e.isReady()) {
                 e.setReady();
@@ -317,7 +317,7 @@ public class Processor {
             }
         }
     }
-    private Double calculate(ReservationStationSlot entry){
+    private Double calculate(ReservationStationSlot entry) {
         switch (entry.getInstruction().getOperation()){
             case DADD, ADDI, ADD_D -> {
                 return entry.getvJ() + entry.getvK();
