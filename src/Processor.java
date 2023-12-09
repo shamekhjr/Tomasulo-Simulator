@@ -252,27 +252,33 @@ public class Processor {
     public void execute() {
         // check if operands ready
         for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
-            if(e.isBusy()){
-                if(!e.isReady()){
-                    e.setReady();
-                    if(e.isReady()) e.getInstruction().setExecutionStartCycle(cycleCounter);
-                }
-                if(e.isReady() && !e.isFinished()) {
-                    e.decrementTimeLeft();
-                    if(e.getTimeLeft() == 0) {
-                        e.setResult(calculate(e));
-                        e.setFinished(true);
-                        e.getInstruction().setExecutionEndCycle(cycleCounter);
-//                        e.getInstruction().setPublishCycle(cycleCounter + 1);
-                    }
-                }
-            }
+            executionLoopOperations(e);
+        }
+        for(ReservationStationSlot e : mulDivReservationStation.getMulDivReservationStationSlots()) {
+            executionLoopOperations(e);
         }
         // decrement the cycles left for each instruction in the reservation stations and edit publishCycle in instruction
 
         // calculate result if operands ready
     }
 
+    private void executionLoopOperations(ReservationStationSlot e) {
+        if(e.isBusy()){
+            if(!e.isReady()){
+                e.setReady();
+                if(e.isReady()) e.getInstruction().setExecutionStartCycle(cycleCounter);
+            }
+            if(e.isReady() && !e.isFinished()) {
+                e.decrementTimeLeft();
+                if(e.getTimeLeft() == 0) {
+                    e.setResult(calculate(e));
+                    e.setFinished(true);
+                    e.getInstruction().setExecutionEndCycle(cycleCounter);
+//                        e.getInstruction().setPublishCycle(cycleCounter + 1);
+                }
+            }
+        }
+    }
     private Double calculate(ReservationStationSlot entry){
         switch (entry.getInstruction().getOperation()){
             case DADD, ADDI, ADD_D -> {
@@ -286,6 +292,15 @@ public class Processor {
             }
             case DIV_D -> {
                 return entry.getvJ() / entry.getvK();
+            }
+            case BNEZ -> {
+                //TODO Branch Operations
+            }
+            case L_D -> {
+                //TODO Load Operations
+            }
+            case S_D -> {
+                //TODO Store Operations
             }
         }
         return 0.0;

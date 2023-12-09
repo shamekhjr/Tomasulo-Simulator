@@ -118,7 +118,7 @@ public class ReservationStationSlot {
     }
 
     public void setReady() {
-        this.ready = (qJ.equals("0") && qK.equals("0"));
+        this.ready = (qJ.equals("0") && qK.equals("0")); // I have Some Doubts About this line
     }
 
     public boolean isFinished() {
