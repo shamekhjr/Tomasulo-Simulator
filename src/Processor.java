@@ -242,8 +242,10 @@ public class Processor {
 
         if (isIssued) {
             instructionQueue.incrementIndex();
+            //TODO: use the toString of the instruction
             System.out.println("Instruction (" + instruction.getInstructionString() + ") is issued");
         } else {
+            //TODO: use the toString of the instruction
             System.out.println("Instruction (" + instruction.getInstructionString() + ") could not be issued");
         }
 
@@ -270,10 +272,13 @@ public class Processor {
 
     private void executionLoopOperations(LoadStoreSlot e) {
         //TODO: talk about how to handle branches
-        if(e.isBusy()){
+        if(e.isBusy()) {
             if(!e.isReady()) {
                 e.setReady();
-                if(e.isReady()) e.getInstruction().setExecutionStartCycle(cycleCounter);
+                if(e.isReady()) {
+                    e.getInstruction().setExecutionStartCycle(cycleCounter);
+                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is ready to execute");
+                } else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getQ());
             }
             if(e.isReady() &&!e.isFinished()) {
                 e.decrementTimeLeft();
@@ -288,16 +293,21 @@ public class Processor {
                     }
                     e.setFinished(true);
                     e.getInstruction().setExecutionEndCycle(cycleCounter);
-                }
+                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" has finished executing");
+                } else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
             }
         }
+
     }
 
     private void executionLoopOperations(ReservationStationSlot e) {
         if(e.isBusy()){
             if(!e.isReady()){
                 e.setReady();
-                if(e.isReady()) e.getInstruction().setExecutionStartCycle(cycleCounter);
+                if(e.isReady()) {
+                    e.getInstruction().setExecutionStartCycle(cycleCounter);
+                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is ready to execute");
+                }else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
             }
             if(e.isReady() && !e.isFinished()) {
                 e.decrementTimeLeft();
@@ -305,8 +315,8 @@ public class Processor {
                     e.setResult(calculate(e));
                     e.setFinished(true);
                     e.getInstruction().setExecutionEndCycle(cycleCounter);
-//                        e.getInstruction().setPublishCycle(cycleCounter + 1);
-                }
+                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" has finished executing");
+                } else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
             }
         }
     }
