@@ -55,6 +55,10 @@ public class LoadStoreSlot {
 
     }
 
+    public boolean isLoad() {
+        return isLoad;
+    }
+
     public String getTag() {
         return tag;
     }
