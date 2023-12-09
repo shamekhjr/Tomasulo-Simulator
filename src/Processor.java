@@ -260,10 +260,10 @@ public class Processor {
                 if(e.isReady() && !e.isFinished()) {
                     e.decrementTimeLeft();
                     if(e.getTimeLeft() == 0) {
-                        // TODO Evaluation OF Results
+                        e.setResult(calculate(e));
                         e.setFinished(true);
                         e.getInstruction().setExecutionEndCycle(cycleCounter);
-                        e.getInstruction().setPublishCycle(cycleCounter + 1);
+//                        e.getInstruction().setPublishCycle(cycleCounter + 1);
                     }
                 }
             }
@@ -271,6 +271,24 @@ public class Processor {
         // decrement the cycles left for each instruction in the reservation stations and edit publishCycle in instruction
 
         // calculate result if operands ready
+    }
+
+    private Double calculate(ReservationStationSlot entry){
+        switch (entry.getInstruction().getOperation()){
+            case DADD, ADDI, ADD_D -> {
+                return entry.getvJ() + entry.getvK();
+            }
+            case SUBI, SUB_D -> {
+                return entry.getvJ() - entry.getvK();
+            }
+            case MUL_D -> {
+                return entry.getvJ() * entry.getvK();
+            }
+            case DIV_D -> {
+                return entry.getvJ() / entry.getvK();
+            }
+        }
+        return 0.0;
     }
 
 
