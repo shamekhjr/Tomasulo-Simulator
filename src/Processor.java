@@ -269,6 +269,7 @@ public class Processor {
     }
 
     private void executionLoopOperations(LoadStoreSlot e) {
+        //TODO: talk about how to handle branches
         if(e.isBusy()){
             if(!e.isReady()) {
                 e.setReady();
@@ -281,7 +282,9 @@ public class Processor {
                     if(e.isLoad()){
                         registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
                         registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), "0");
-                    }else {
+                    } else {
+                        //TODO: check if q is zero
+                        //TODO: take mem latency into consideration
                         memory.setMemoryItem(effectiveAddress, registerFile.getRegister(e.getInstruction().getSourceOperand()).getValue());
                     }
                     e.setFinished(true);
@@ -437,7 +440,7 @@ public class Processor {
          *      = INSTR RD, RS, RT
          *      = INSTR_I RD, RS, IMM
          *  2- 3 token format
-         *      =  INSTR RD, OFFSET(RS)
+         *      =  INSTR RD, EFFECTIVE_ADDRESS
          *      =  BNEZ RD, LABEL
          *  3- Labeled Instructions
          *      = LABEL: [4 token format]
@@ -605,7 +608,6 @@ public class Processor {
                 }
                 currentInstruction = new Instruction(isFPop, isMEMop, latency, operation, sourceOperand, destinationOperand, targetOperand, immediateValue, effectiveAddress, label, jumpLabel, line);
                 instructionQueue.addInstruction(currentInstruction);
-                //
             }
         } catch(Exception e) {
             e.printStackTrace();
