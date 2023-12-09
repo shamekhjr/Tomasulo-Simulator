@@ -276,7 +276,21 @@ public class Processor {
             }
         }
         for (LoadStoreSlot e : loadStoreBuffers.getStoreSlots()) {
-            //TODO Store Operation
+            if(e.isBusy()){
+                if(!e.isReady()) {
+                    e.setReady();
+                    if(e.isReady()) e.getInstruction().setExecutionStartCycle(cycleCounter);
+                }
+                if(e.isReady() &&!e.isFinished()) {
+                    e.decrementTimeLeft();
+                    if(e.getTimeLeft() == 0) {
+                        int effectiveAddress = e.getInstruction().getEffectiveAddress();
+                        memory.setMemoryItem(effectiveAddress, registerFile.getRegister(e.getInstruction().getSourceOperand()).getValue());
+                        e.setFinished(true);
+                        e.getInstruction().setExecutionEndCycle(cycleCounter);
+                    }
+                }
+            }
         }
         // decrement the cycles left for each instruction in the reservation stations and edit publishCycle in instruction
 
