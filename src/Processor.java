@@ -253,12 +253,17 @@ public class Processor {
         // check if operands ready
         for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
             if(e.isBusy()){
-                e.setReady();
-                if(e.isReady()) {
+                if(!e.isReady()){
+                    e.setReady();
+                    if(e.isReady()) e.getInstruction().setExecutionStartCycle(cycleCounter);
+                }
+                if(e.isReady() && !e.isFinished()) {
                     e.decrementTimeLeft();
                     if(e.getTimeLeft() == 0) {
                         // TODO Evaluation OF Results
                         e.setFinished(true);
+                        e.getInstruction().setExecutionEndCycle(cycleCounter);
+                        e.getInstruction().setPublishCycle(cycleCounter + 1);
                     }
                 }
             }
