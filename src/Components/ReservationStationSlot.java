@@ -117,7 +117,7 @@ public class ReservationStationSlot {
         return ready;
     }
 
-    public void setReady() {
+    public void updateReady() {
         this.ready = (qJ == null && qK == null); // I have Some Doubts About this line
     }
 

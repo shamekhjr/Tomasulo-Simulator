@@ -94,8 +94,8 @@ public class LoadStoreSlot {
         return v;
     }
 
-    public void setV(int v) {
-        this.v = (double) v;
+    public void setV(Double v) {
+        this.v = v;
 
     }
 
@@ -121,7 +121,7 @@ public class LoadStoreSlot {
         return ready;
     }
 
-    public void setReady() {
+    public void updateReady() {
         if (isLoad) {
             this.ready = true;
         } else {

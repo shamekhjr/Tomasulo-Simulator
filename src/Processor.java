@@ -25,6 +25,7 @@ public class Processor {
     int MemLatency;
     int cycleCounter;
     final int NON_IMMEDIATE = -404404404;
+    boolean stall;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("============================================");
@@ -71,6 +72,7 @@ public class Processor {
         SubILatency = 1;
         MemLatency = 1;
         cycleCounter = 1;
+        stall = false;
     }
 
     public Processor(int addSubSize, int mulDivSize, int loadBufferSize, int storeBufferSize, int memorySize, int Mul_DLatency, int Div_DLatency, int Add_DLatency, int Sub_DLatency, int DAddLatency, int SubILatency, int MemLatency) {
@@ -90,6 +92,7 @@ public class Processor {
         this.SubILatency = SubILatency;
         this.MemLatency = MemLatency;
         this.cycleCounter = 1;
+        this.stall = false;
     }
 
     private OperandTuple readArithOperands(Instruction instruction) {
@@ -148,6 +151,11 @@ public class Processor {
         Instruction instruction = instructionQueue.getInstructionNoInc();
 
         if (instruction == null) { // no instruction to issue
+            return;
+        }
+
+        if (stall) { // stalled from branch
+            stall = false;
             return;
         }
 
@@ -236,6 +244,7 @@ public class Processor {
                     }
 
                     isIssued = true;
+                    stall = true;
                 }
             }
         }
@@ -250,8 +259,9 @@ public class Processor {
     }
 
     public void execute() {
-        //TODO: talk about how to handle branches
+        // TODO: talk about how to handle branches
         // check if operands ready
+
         for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
             executionLoopOperations(e);
         }
@@ -264,29 +274,30 @@ public class Processor {
         for (LoadStoreSlot e : loadStoreBuffers.getStoreSlots()) {
             executionLoopOperations(e);
         }
-        // decrement the cycles left for each instruction in the reservation stations and edit publishCycle in instruction
 
-        // calculate result if operands ready
     }
 
     private void executionLoopOperations(LoadStoreSlot e) {
         if(e.isBusy()) {
             if(!e.isReady()) {
-                e.setReady();
+                e.updateReady();
+
                 if(e.isReady()) {
                     e.getInstruction().setExecutionStartCycle(cycleCounter);
-                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is ready to execute");
-                } else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getQ());
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is ready to execute");
+                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: " + e.getQ());
             }
             if(e.isReady() &&!e.isFinished()) {
                 e.decrementTimeLeft();
                 if(e.getTimeLeft() == 0) {
                     int effectiveAddress = e.getInstruction().getEffectiveAddress();
-                    if(e.isLoad()){
-                        registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
-                        registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), null);
+                    if(e.isLoad()){ // no exec in load
+                        //TODO: do in writeback
+                        //registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
+                        //registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), null);
                     } else {
-                        memory.setMemoryItem(effectiveAddress, registerFile.getRegister(e.getInstruction().getSourceOperand()).getValue());
+                        //TODO: do in writeback
+                        //memory.setMemoryItem(effectiveAddress, e.getV());
                     }
                     e.setFinished(true);
                     e.getInstruction().setExecutionEndCycle(cycleCounter);
@@ -297,23 +308,66 @@ public class Processor {
 
     }
 
+    private void updateReservationSlotsFromBus() {
+        for(ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
+            if(e.isBusy()) {
+                if(e.getqJ() != null && e.getqJ().equals(bus.getTag())) {
+                    e.setvJ(bus.getValue());
+                    e.setqJ(null);
+                }
+                if(e.getqK() != null && e.getqK().equals(bus.getTag())) {
+                    e.setvK(bus.getValue());
+                    e.setqK(null);
+                }
+            }
+        }
+
+        for(ReservationStationSlot e : mulDivReservationStation.getMulDivReservationStationSlots()) {
+            if(e.isBusy()) {
+                if(e.getqJ() != null && e.getqJ().equals(bus.getTag())) {
+                    e.setvJ(bus.getValue());
+                    e.setqJ(null);
+                }
+                if(e.getqK() != null && e.getqK().equals(bus.getTag())) {
+                    e.setvK(bus.getValue());
+                    e.setqK(null);
+                }
+            }
+        }
+
+        for(LoadStoreSlot e : loadStoreBuffers.getLoadSlots()) {
+            if(e.isBusy()) {
+                if(e.getQ() != null && e.getQ().equals(bus.getTag())) {
+                    e.setV(bus.getValue());
+                    e.setQ(null);
+                }
+            }
+        }
+    }
+
     private void executionLoopOperations(ReservationStationSlot e) {
         if(e.isBusy()){
-            if(!e.isReady()){
-                e.setReady();
+            if (!e.isReady()) {
+                e.updateReady();
+
                 if(e.isReady()) {
                     e.getInstruction().setExecutionStartCycle(cycleCounter);
-                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is ready to execute");
-                }else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is ready to execute");
+                } else {
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
+                }
             }
             if(e.isReady() && !e.isFinished()) {
                 e.decrementTimeLeft();
-                if(e.getTimeLeft() == 0) {
+                if (e.getTimeLeft() == 0) {
                     e.setResult(calculate(e));
+                    if (e.getResult() == 1) {
+                        instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
+                    }
                     e.setFinished(true);
                     e.getInstruction().setExecutionEndCycle(cycleCounter);
-                    System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" has finished executing");
-                } else System.out.println("Instruction (" + e.getInstruction() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing");
+                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
             }
         }
     }
@@ -329,10 +383,13 @@ public class Processor {
                 return entry.getvJ() * entry.getvK();
             }
             case DIV_D -> {
+                if (entry.getvK() == 0) {
+                    throw new ArithmeticException("Division by zero, in " + entry.getTag());
+                }
                 return entry.getvJ() / entry.getvK();
             }
             case BNEZ -> {
-                return entry.getvJ() != null ? 1.0 : 0.0;
+                return entry.getvJ() != 0 ? 1.0 : 0.0;
             }
         }
         return 0.0;
@@ -344,6 +401,10 @@ public class Processor {
         //TODO: if yes, do not write back and wait one more cycle
         //TODO: count first all the instructions that can write back in this cycle and prioritize
 
+        // write back to register file
+
+        // update reservation stations from bus
+        updateReservationSlotsFromBus();
     }
 
     public static Processor getProcessorSetup() throws InterruptedException {
