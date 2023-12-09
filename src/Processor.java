@@ -288,7 +288,6 @@ public class Processor {
                         registerFile.setRegister(e.getInstruction().getDestinationOperand(), memory.getMemoryItem(effectiveAddress));
                         registerFile.setRegisterTag(e.getInstruction().getDestinationOperand(), "0");
                     } else {
-                        //TODO: take mem latency into consideration
                         memory.setMemoryItem(effectiveAddress, registerFile.getRegister(e.getInstruction().getSourceOperand()).getValue());
                     }
                     e.setFinished(true);
@@ -325,7 +324,7 @@ public class Processor {
             case DADD, ADDI, ADD_D -> {
                 return entry.getvJ() + entry.getvK();
             }
-            case SUBI, SUB_D, BNEZ -> {
+            case SUBI, SUB_D -> {
                 return entry.getvJ() - entry.getvK();
             }
             case MUL_D -> {
@@ -334,12 +333,18 @@ public class Processor {
             case DIV_D -> {
                 return entry.getvJ() / entry.getvK();
             }
+            case BNEZ -> {
+                return entry.getvJ() != 0 ? 1.0 : 0.0;
+            }
         }
         return 0.0;
     }
 
 
     public void writeBack() {
+        //TODO: check if instruction has finished executing, if yes, check if it has finished in this cycle
+        //TODO: if yes, do not write back and wait one more cycle
+        //TODO: count first all the instructions that can write back in this cycle and prioritize
 
     }
 
