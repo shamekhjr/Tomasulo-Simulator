@@ -110,12 +110,16 @@ public class Processor {
 
             if (regSrc1.getQ() == null) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
+            } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())){
+                operands.setVj(bus.getValue());
             } else {
                 operands.setQj(regSrc1.getQ());
             }
 
             if (regSrc2.getQ() == null) { // src2 is ready
                 operands.setVk(regSrc2.getValue());
+            } else if (bus.isPopulated() && bus.getTag().equals(regSrc2.getQ())) {
+                operands.setVk(bus.getValue());
             } else {
                 operands.setQk(regSrc2.getQ());
             }
@@ -127,6 +131,8 @@ public class Processor {
 
             if (regSrc1.getQ() == null) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
+            } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
+                operands.setVj(bus.getValue());
             } else {
                 operands.setQj(regSrc1.getQ());
             }
@@ -202,6 +208,8 @@ public class Processor {
 
                     if (regSrc1.getQ() == null) { // src1 is ready
                         loadStoreBuffers.addStoreInstruction(instruction, regSrc1.getValue(), null);
+                    } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
+                        loadStoreBuffers.addStoreInstruction(instruction, bus.getValue(), null);
                     } else {
                         loadStoreBuffers.addStoreInstruction(instruction, -1, regSrc1.getQ());
                     }
@@ -221,6 +229,8 @@ public class Processor {
 
                     if (regSrc1.getQ() == null) { // src1 is ready
                         addSubReservationStation.addInstruction(instruction, regSrc1.getValue(), (double) 0, null, null);
+                    } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
+                        addSubReservationStation.addInstruction(instruction, bus.getValue(), 0.0, null, null);
                     } else {
                         addSubReservationStation.addInstruction(instruction, (double) -1, (double) 0, regSrc1.getQ(), null);
                     }
@@ -409,7 +419,7 @@ public class Processor {
                 effectiveAddress = -1;
                 label = null;
                 jumpLabel = null;
-                immediateValue = -404404404;
+                immediateValue = NON_IMMEDIATE;
 
                 fourToken = false;
                 threeToken = false;
