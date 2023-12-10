@@ -69,11 +69,15 @@ public class Processor {
             System.out.println("Load/Store Buffers -------------------------");
             System.out.println(processor.loadStoreBuffers);
             System.out.println("--------------------------------------------");
+
+            System.out.println("Instruction Queue --------------------------");
+            processor.instructionQueue.print();
+            System.out.println("--------------------------------------------");
             processor.cycleCounter++;
             System.out.println("============================================");
         }
 
-        processor.instructionQueue.print();
+        //processor.instructionQueue.print();
 
     }
 
@@ -260,6 +264,9 @@ public class Processor {
 
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
+                    instruction.setExecutionStartCycle(null);
+                    instruction.setExecutionEndCycle(null);
+                    instruction.setPublishCycle(null);
 
                     assignedSlot = addSubReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
                     isIssued = true;
@@ -273,6 +280,9 @@ public class Processor {
 
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
+                    instruction.setExecutionStartCycle(null);
+                    instruction.setExecutionEndCycle(null);
+                    instruction.setPublishCycle(null);
 
                     // add the instruction to the mul/div reservation station
                     assignedSlot = mulDivReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
@@ -285,6 +295,9 @@ public class Processor {
                 if (!loadStoreBuffers.isLoadBufferFull()) {
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
+                    instruction.setExecutionStartCycle(null);
+                    instruction.setExecutionEndCycle(null);
+                    instruction.setPublishCycle(null);
 
                     // add the instruction to the load/store buffers
                     assignedLoadStoreSlot = loadStoreBuffers.addLoadInstruction(instruction);
@@ -301,6 +314,9 @@ public class Processor {
 
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
+                    instruction.setExecutionStartCycle(null);
+                    instruction.setExecutionEndCycle(null);
+                    instruction.setPublishCycle(null);
 
                     if (regSrc1.getQ() == null) { // src1 is ready
                         loadStoreBuffers.addStoreInstruction(instruction, regSrc1.getValue(), null);
@@ -322,6 +338,9 @@ public class Processor {
 
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
+                    instruction.setExecutionStartCycle(null);
+                    instruction.setExecutionEndCycle(null);
+                    instruction.setPublishCycle(null);
 
                     if (regSrc1.getQ() == null) { // src1 is ready
                         addSubReservationStation.addInstruction(instruction, regSrc1.getValue(), null, null, null); //qJ howa el mohem
@@ -581,6 +600,18 @@ public class Processor {
             if(e.isFinished() && !e.isPublished() && e.getInstruction().getExecutionEndCycle() < cycleCounter && e.getInstruction().getOperation() != Operation.BNEZ) {
                 countFinished++;
                 finishedInstructions.put(e.getTag(), e.getInstruction());
+            }
+
+            if (e.isFinished() && !e.isPublished() && e.getInstruction().getExecutionEndCycle() < cycleCounter && e.getInstruction().getOperation() == Operation.BNEZ) {
+//                if (e.getResult() == 1) {
+//                    instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
+//                }
+                e.setPublished(true);
+                e.getInstruction().setPublishCycle(cycleCounter);
+                instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
+                System.out.println("Publishing instruction " + e.getInstruction().getInstructionString() + " with tag " + e.getTag() + " and result " + e.getInstruction().getResult());
+                addSubReservationStation.removeInstruction(e.getTag());
+
             }
         }
 

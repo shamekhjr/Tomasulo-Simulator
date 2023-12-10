@@ -102,7 +102,7 @@ public class Instruction {
         return executionStartCycle;
     }
 
-    public void setExecutionStartCycle(int executionStartCycle) {
+    public void setExecutionStartCycle(Integer executionStartCycle) {
         this.executionStartCycle = executionStartCycle;
     }
 
@@ -110,7 +110,7 @@ public class Instruction {
         return executionEndCycle;
     }
 
-    public void setExecutionEndCycle(int executionEndCycle) {
+    public void setExecutionEndCycle(Integer executionEndCycle) {
         this.executionEndCycle = executionEndCycle;
     }
 
@@ -118,7 +118,7 @@ public class Instruction {
         return publishCycle;
     }
 
-    public void setPublishCycle(int publishCycle) {
+    public void setPublishCycle(Integer publishCycle) {
         this.publishCycle = publishCycle;
     }
 
