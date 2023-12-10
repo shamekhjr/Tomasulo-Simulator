@@ -60,6 +60,7 @@ public class AddSubReservationStation {
     public void removeInstruction(String tag) {
         for (int i = 0; i < size; i++) {
             if (addSubReservationStationSlots[i].isBusy() && addSubReservationStationSlots[i].getTag().equals(tag)) {
+                addSubReservationStationSlots[i].setInstruction(null);
                 addSubReservationStationSlots[i].setAll(tag,false,null,null,null,null,false,false, false);
                 updateNumOfUsedStationsA();
                 break;
