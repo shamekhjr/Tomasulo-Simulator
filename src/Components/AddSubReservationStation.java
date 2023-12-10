@@ -45,15 +45,16 @@ public class AddSubReservationStation {
     }
 
     //add instruction to the first free reservation station then updated usedStations
-    public void addInstruction(Instruction instruction, Double vJ, Double vK, String qJ, String qK) {
+    public ReservationStationSlot addInstruction(Instruction instruction, Double vJ, Double vK, String qJ, String qK) {
         for (int i = 0; i < size; i++) {
             if (!addSubReservationStationSlots[i].isBusy()) {
                 addSubReservationStationSlots[i].setInstruction(instruction);
                 addSubReservationStationSlots[i].setAll("A"+i,true,vJ,vK,qJ,qK,false,false, false);
                 updateNumOfUsedStationsA();
-                break;
+                return addSubReservationStationSlots[i];
             }
         }
+        return null;
     }
     //remove an instruction that takes tag as input from the reservation station then update usedStations
     public void removeInstruction(String tag) {

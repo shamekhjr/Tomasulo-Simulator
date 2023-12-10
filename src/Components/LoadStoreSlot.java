@@ -30,9 +30,10 @@ public class LoadStoreSlot {
         ready = false;
         finished = false;
         published = false;
+        isLoad = false;
     }
 
-    public LoadStoreSlot(String tag) {
+    public LoadStoreSlot(String tag, boolean isLoad) {
         instruction = null;
         this.tag = tag;
         timeLeft = 0;
@@ -43,9 +44,10 @@ public class LoadStoreSlot {
         ready = false;
         finished = false;
         published = false;
+        this.isLoad = isLoad;
     }
 
-    public LoadStoreSlot(Instruction instruction, String tag, boolean busy, Double v, String q) {
+    public LoadStoreSlot(Instruction instruction, String tag, boolean busy, Double v, String q, boolean isLoad) {
         this.instruction = instruction;
         this.tag = tag;
         this.timeLeft = instruction == null ? 0 : instruction.getLatency();
@@ -57,6 +59,7 @@ public class LoadStoreSlot {
         this.ready = false;
         this.finished = false;
         this.published = false;
+        this.isLoad = isLoad;
     }
 
     public Instruction getInstruction() {
@@ -171,7 +174,7 @@ public class LoadStoreSlot {
         timeLeft--;
     }
 
-    public void setAll(String tag, boolean busy, Double v, String q, boolean ready, boolean finished, boolean published) {
+    public void setAll(String tag, boolean busy, Double v, String q, boolean ready, boolean finished, boolean published, int effectiveAddress) {
         this.tag = tag;
         this.timeLeft = instruction == null ? 0 : instruction.getLatency();
         this.busy = busy;
@@ -180,6 +183,8 @@ public class LoadStoreSlot {
         this.ready = ready;
         this.finished = finished;
         this.published = published;
+        this.effectiveAddress = effectiveAddress;
+
     }
 
     public void setAll(String tag, Instruction instruction, boolean busy, Double v, String q, boolean ready, boolean finished, boolean published) {

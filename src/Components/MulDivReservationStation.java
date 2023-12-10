@@ -45,15 +45,16 @@ public class MulDivReservationStation {
     }
 
     //add instruction to the first free reservation station then updated usedStations
-    public void addInstruction(Instruction instruction, Double vJ, Double vK, String qJ, String qK) {
+    public ReservationStationSlot addInstruction(Instruction instruction, Double vJ, Double vK, String qJ, String qK) {
         for (int i = 0; i < size; i++) {
             if (!mulDivReservationStationSlots[i].isBusy()) {
                 mulDivReservationStationSlots[i].setInstruction(instruction);
                 mulDivReservationStationSlots[i].setAll("M"+i,true,vJ,vK,qJ,qK,false,false, false);
                 updateNumOfUsedStationsM();
-                break;
+                return mulDivReservationStationSlots[i];
             }
         }
+        return null;
     }
     //remove an instruction that takes tag as input from the reservation station then update usedStations
     public void removeInstruction(String tag) {

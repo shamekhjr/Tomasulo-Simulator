@@ -156,6 +156,7 @@ public class Instruction {
                 ", executionStartCycle=" + executionStartCycle +
                 ", executionEndCycle=" + executionEndCycle +
                 ", publishCycle=" + publishCycle +
+                ", result=" + result +
                 '}';
     }
 

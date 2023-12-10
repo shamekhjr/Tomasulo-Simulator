@@ -16,10 +16,10 @@ public class LoadStoreBuffers {
         loadSlots = new LoadStoreSlot[loadBufferSize];
         storeSlots = new LoadStoreSlot[storeBufferSize];
         for (int i = 0; i < loadBufferSize; i++) {
-            loadSlots[i] = new LoadStoreSlot("L"+i);
+            loadSlots[i] = new LoadStoreSlot("L"+i, true);
         }
         for (int i = 0; i < storeBufferSize; i++) {
-            storeSlots[i] = new LoadStoreSlot("S"+i);
+            storeSlots[i] = new LoadStoreSlot("S"+i, false);
         }
     }
 
@@ -31,10 +31,10 @@ public class LoadStoreBuffers {
         loadSlots = new LoadStoreSlot[this.loadBufferSize];
         storeSlots = new LoadStoreSlot[this.storeBufferSize];
         for (int i = 0; i < loadBufferSize; i++) {
-            loadSlots[i] = new LoadStoreSlot("L"+i);
+            loadSlots[i] = new LoadStoreSlot("L"+i, true);
         }
         for (int i = 0; i < storeBufferSize; i++) {
-            storeSlots[i] = new LoadStoreSlot("S"+i);
+            storeSlots[i] = new LoadStoreSlot("S"+i, false);
         }
     }
 
@@ -132,22 +132,24 @@ public class LoadStoreBuffers {
         return numOfUsedStoreSlots == 0;
     }
 
-    public void addLoadInstruction(Instruction instruction) {
+    public LoadStoreSlot addLoadInstruction(Instruction instruction) {
         for (int i = 0; i < loadBufferSize; i++) {
             if (!loadSlots[i].isBusy()) {
                 loadSlots[i].setInstruction(instruction);
-                loadSlots[i].setAll("L"+i,true, null,null, true, false, false);
+                loadSlots[i].setAll("L"+i,true, null,null, true, false, false, instruction.getEffectiveAddress());
                 updateNumOfUsedLoadSlots();
-                break;
+                return loadSlots[i];
+
             }
         }
+        return null;
     }
 
     public void addStoreInstruction(Instruction instruction, Double v, String q) {
         for (int i = 0; i < storeBufferSize; i++) {
             if (!storeSlots[i].isBusy()) {
                 storeSlots[i].setInstruction(instruction);
-                storeSlots[i].setAll("S"+i,true,v,q,false,false, false);
+                storeSlots[i].setAll("S"+i,true,v,q,false,false, false, instruction.getEffectiveAddress());
                 updateNumOfUsedStoreSlots();
                 break;
             }
@@ -170,7 +172,7 @@ public class LoadStoreBuffers {
         for (int i = 0; i < storeBufferSize; i++) {
             if (storeSlots[i].getTag().equals(tag)) {
                 storeSlots[i].setInstruction(null);
-                storeSlots[i].setAll(tag,false, null,null, false, false, false);
+                storeSlots[i].setAll(tag,false, null,null, false, false, false, -1);
                 updateNumOfUsedStoreSlots();
                 break;
             }

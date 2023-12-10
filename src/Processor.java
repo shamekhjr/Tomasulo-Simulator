@@ -45,12 +45,30 @@ public class Processor {
 
         while (!(processor.instructionQueue.getCurrentIndex() >= processor.instructionQueue.size() && processor.addSubReservationStation.isEmpty() && processor.mulDivReservationStation.isEmpty() && processor.loadStoreBuffers.isEmpty())) {
             System.out.println("Cycle " + processor.cycleCounter);
+
             processor.issue();
             processor.execute();
+            processor.writeBack();
+
+            System.out.println("Add/Sub Reservation Station -----------------");
             System.out.println(processor.addSubReservationStation);
             System.out.println("--------------------------------------------");
-            processor.writeBack();
+
+            System.out.println("Mul/Div Reservation Station -----------------");
+            System.out.println(processor.mulDivReservationStation);
+            System.out.println("--------------------------------------------");
+
+            System.out.println("Register File ------------------------------");
+            System.out.println(processor.registerFile);
+            System.out.println("--------------------------------------------");
+
+            System.out.println("Memory -------------------------------------");
+            System.out.println(processor.memory);
+            System.out.println("--------------------------------------------");
+
+            System.out.println("Load/Store Buffers -------------------------");
             System.out.println(processor.loadStoreBuffers);
+            System.out.println("--------------------------------------------");
             processor.cycleCounter++;
             System.out.println("============================================");
         }
@@ -177,16 +195,16 @@ public class Processor {
 
             if (regSrc1.getQ() == null) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
-            } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())){
-                operands.setVj(bus.getValue());
+//            } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())){
+//                operands.setVj(bus.getValue());
             } else {
                 operands.setQj(regSrc1.getQ());
             }
 
             if (regSrc2.getQ() == null) { // src2 is ready
                 operands.setVk(regSrc2.getValue());
-            } else if (bus.isPopulated() && bus.getTag().equals(regSrc2.getQ())) {
-                operands.setVk(bus.getValue());
+//            } else if (bus.isPopulated() && bus.getTag().equals(regSrc2.getQ())) {
+//                operands.setVk(bus.getValue());
             } else {
                 operands.setQk(regSrc2.getQ());
             }
@@ -198,8 +216,8 @@ public class Processor {
 
             if (regSrc1.getQ() == null) { // src1 is ready
                 operands.setVj(regSrc1.getValue());
-            } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
-                operands.setVj(bus.getValue());
+//            } else if (bus.isPopulated() && bus.getTag().equals(regSrc1.getQ())) {
+//                operands.setVj(bus.getValue());
             } else {
                 operands.setQj(regSrc1.getQ());
             }
@@ -229,6 +247,9 @@ public class Processor {
         // check instruction type
         Operation currOpr = instruction.getOperation();
         boolean isIssued = false;
+        ReservationStationSlot assignedSlot = null;
+        LoadStoreSlot assignedLoadStoreSlot = null;
+
         switch (currOpr) {
             // ADD_D, SUB_D, MUL_D, DIV_D, L_D, S_D, BNEZ, DADD, ADDI, SUBI
             case ADD_D, ADDI, SUB_D, SUBI, DADD -> {
@@ -240,7 +261,7 @@ public class Processor {
                     // add issue cycle to instruction
                     instruction.setIssueCycle(cycleCounter);
 
-                    addSubReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
+                    assignedSlot = addSubReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
                     isIssued = true;
                 }
             }
@@ -254,7 +275,7 @@ public class Processor {
                     instruction.setIssueCycle(cycleCounter);
 
                     // add the instruction to the mul/div reservation station
-                    mulDivReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
+                    assignedSlot = mulDivReservationStation.addInstruction(instruction, operands.getVj(), operands.getVk(), operands.getQj(), operands.getQk());
                     isIssued = true;
                 }
             }
@@ -266,7 +287,7 @@ public class Processor {
                     instruction.setIssueCycle(cycleCounter);
 
                     // add the instruction to the load/store buffers
-                    loadStoreBuffers.addLoadInstruction(instruction);
+                    assignedLoadStoreSlot = loadStoreBuffers.addLoadInstruction(instruction);
                     isIssued = true;
                 }
             }
@@ -318,11 +339,22 @@ public class Processor {
 
         if (isIssued) {
             instructionQueue.incrementIndex();
+            updateRegisterQ(instruction, assignedSlot, assignedLoadStoreSlot);
             System.out.println("Instruction (" + instruction.getInstructionString() + ") is issued");
         } else {
             System.out.println("Instruction (" + instruction.getInstructionString() + ") could not be issued");
         }
 
+    }
+
+    private void updateRegisterQ(Instruction instruction, ReservationStationSlot assignedSlot, LoadStoreSlot assignedLoadStoreSlot) {
+        if (assignedSlot != null) {
+            String dest = instruction.getDestinationOperand();
+            registerFile.getRegister(dest).setQ(assignedSlot.getTag());
+        } else if (assignedLoadStoreSlot != null) {
+            String dest = instruction.getDestinationOperand();
+            registerFile.getRegister(dest).setQ(assignedLoadStoreSlot.getTag());
+        }
     }
 
     public void execute() {
@@ -349,33 +381,64 @@ public class Processor {
                 e.updateReady();
 
                 if(e.isReady()) {
-                    e.getInstruction().setExecutionStartCycle(cycleCounter);
-                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
-                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is ready to execute");
+                    executeCycle(e);
                 } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: " + e.getQ());
             }
-            else if(e.isReady() &&!e.isFinished()) {
-                e.decrementTimeLeft();
-                if(e.getTimeLeft() == 0) {
-                    int effectiveAddress = e.getInstruction().getEffectiveAddress();
-                    if(e.isLoad()){ // no exec in load
-
-                        e.setResult(memory.getMemoryItem(effectiveAddress));
-                        e.getInstruction().setResult(memory.getMemoryItem(effectiveAddress));
-
-                    } else {
-
-                        e.setResult(e.getV());
-                        e.getInstruction().setResult(e.getV());
-                    }
-                    e.setFinished(true);
-                    e.getInstruction().setExecutionEndCycle(cycleCounter);
-                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
-                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " has finished executing");
-                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is executing, " + e.getTimeLeft() + " cycles left");
+            else if(e.isReady() && !e.isFinished()) {
+                executeCycle(e);
             }
         }
 
+    }
+
+    private void executeCycle(LoadStoreSlot e) {
+        if (e.getInstruction().getIssueCycle() < cycleCounter) {
+            if (e.getInstruction().getExecutionStartCycle() == null) {
+                e.getInstruction().setExecutionStartCycle(cycleCounter);
+                //instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
+            }
+            e.decrementTimeLeft();
+            if (e.getTimeLeft() == 0) {
+                int effectiveAddress = e.getInstruction().getEffectiveAddress();
+                if (e.isLoad()) { // no exec in load
+                    System.out.println("SETTING RESULT TO " + memory.getMemoryItem(effectiveAddress));
+                    e.setResult(memory.getMemoryItem(effectiveAddress));
+                    e.getInstruction().setResult(memory.getMemoryItem(effectiveAddress));
+
+                } else {
+
+                    e.setResult(e.getV());
+                    e.getInstruction().setResult(e.getV());
+                }
+                e.setFinished(true);
+                e.getInstruction().setExecutionEndCycle(cycleCounter);
+                instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
+                System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " has finished executing");
+            } else
+                System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is executing, " + e.getTimeLeft() + " cycles left");
+        }
+    }
+
+    private void executeCycle(ReservationStationSlot e) {
+        if (e.getInstruction().getIssueCycle() < cycleCounter) {
+            if (e.getInstruction().getExecutionStartCycle() == null) {
+                e.getInstruction().setExecutionStartCycle(cycleCounter);
+                //instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
+            }
+
+            e.decrementTimeLeft();
+            if (e.getTimeLeft() == 0) {
+                e.setResult(calculate(e));
+                e.getInstruction().setResult(calculate(e));
+                if (e.getInstruction().getOperation() == Operation.BNEZ && e.getResult() == 1) {
+                    instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
+                }
+                e.setFinished(true);
+                e.getInstruction().setExecutionEndCycle(cycleCounter);
+                instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
+                System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing");
+            } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
+        }
     }
 
     private void executionLoopOperations(ReservationStationSlot e) {
@@ -384,26 +447,13 @@ public class Processor {
                 e.updateReady();
 
                 if(e.isReady()) {
-                    e.getInstruction().setExecutionStartCycle(cycleCounter);
-                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
-                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is ready to execute");
+                   executeCycle(e);
                 } else {
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
                 }
             }
             else if(e.isReady() && !e.isFinished()) {
-                e.decrementTimeLeft();
-                if (e.getTimeLeft() == 0) {
-                    e.setResult(calculate(e));
-                    e.getInstruction().setResult(calculate(e));
-                    if (e.getInstruction().getOperation() == Operation.BNEZ && e.getResult() == 1) {
-                        instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
-                    }
-                    e.setFinished(true);
-                    e.getInstruction().setExecutionEndCycle(cycleCounter);
-                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
-                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing");
-                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
+                executeCycle(e);
             }
         }
     }
@@ -790,7 +840,7 @@ public class Processor {
 
                 System.out.println("Enter the value: ");
                 double value = scanner.nextDouble();
-                memory.setMemoryItem(i, value);
+                memory.setMemoryItem(index, value);
             }
 
         }
@@ -806,12 +856,12 @@ public class Processor {
             int numberOfregisters = scanner.nextInt();
 
             for (int i = 0; i < numberOfregisters; i++) {
-                System.out.println("Enter the register name (FNN/RNN | N = {1...32}): ");
+                System.out.println("Enter the register name (FNN/RNN | N = {0...31}): ");
                 String regName = scanner.next();
 
                 if (regName.charAt(0) == 'R' || regName.charAt(0) == 'r') {
                     int regNumber = Integer.parseInt(regName.substring(1));
-                    if (regNumber < 1 || regNumber > 32) {
+                    if (regNumber < 0 || regNumber > 31) {
                         System.out.println("Invalid register number!");
                         i--;
                         continue;
@@ -823,7 +873,7 @@ public class Processor {
 
                 } else if (regName.charAt(0) == 'F' || regName.charAt(0) == 'f') {
                     int regNumber = Integer.parseInt(regName.substring(1));
-                    if (regNumber < 1 || regNumber > 32) {
+                    if (regNumber < 0 || regNumber > 31) {
                         System.out.println("Invalid register number!");
                         i--;
                         continue;

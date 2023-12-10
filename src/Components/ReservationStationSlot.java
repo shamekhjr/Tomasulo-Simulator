@@ -189,7 +189,7 @@ public class ReservationStationSlot {
     }
 
     public String toString() {
-        return "Instruction: " + instruction + "\nTag: " + tag + "\nTime Left: " + timeLeft + "\nBusy: " + busy + "\nvJ: " + vJ + "\nvK: " + vK + "\nqJ: " + qJ + "\nqK: " + qK + "\nResult: " + result + "\nReady: " + ready + "\nFinished: " + finished + "\nPublished: " + published;
+        return "Instruction: " + instruction + " Tag: " + tag + " Time Left: " + timeLeft + " Busy: " + busy + " vJ: " + vJ + " vK: " + vK + " qJ: " + qJ + " qK: " + qK + " Result: " + result + " Ready: " + ready + " Finished: " + finished + " Published: " + published;
     }
 
 

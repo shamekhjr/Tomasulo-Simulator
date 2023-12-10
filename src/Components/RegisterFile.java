@@ -65,4 +65,16 @@ public class RegisterFile {
     public void setGpRegisters(Register[] gpRegisters) {
         this.gpRegisters = gpRegisters;
     }
+
+    public String toString() {
+        String s = "";
+        for (int i = 0; i < NUM_OF_GP_REGISTERS; i++) {
+            s += "R" + i + " = " + gpRegisters[i].getValue() + " Q: " + gpRegisters[i].getQ() + "\n";
+        }
+        s+="\n";
+        for (int i = 0; i < NUM_OF_FP_REGISTERS; i++) {
+            s += "F" + i + " = " + fpRegisters[i].getValue() + " Q: " + fpRegisters[i].getQ() +"\n";
+        }
+        return s;
+    }
 }
