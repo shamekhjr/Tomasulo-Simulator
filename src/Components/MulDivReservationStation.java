@@ -10,7 +10,7 @@ public class MulDivReservationStation {
         numOfUsedStations = 0;
         mulDivReservationStationSlots = new ReservationStationSlot[size];
         for (int i = 0; i < 2; i++) {
-            mulDivReservationStationSlots[i] = new ReservationStationSlot();
+            mulDivReservationStationSlots[i] = new ReservationStationSlot("M"+i);
         }
 
     }
@@ -21,7 +21,7 @@ public class MulDivReservationStation {
         numOfUsedStations = 0;
         mulDivReservationStationSlots = new ReservationStationSlot[this.size];
         for (int i = 0; i < size; i++) {
-            mulDivReservationStationSlots[i] = new ReservationStationSlot();
+            mulDivReservationStationSlots[i] = new ReservationStationSlot("M"+i);
         }
     }
 
@@ -58,7 +58,7 @@ public class MulDivReservationStation {
     //remove an instruction that takes tag as input from the reservation station then update usedStations
     public void removeInstruction(String tag) {
         for (int i = 0; i < size; i++) {
-            if (mulDivReservationStationSlots[i].getTag().equals(tag)) {
+            if (mulDivReservationStationSlots[i].isBusy() && mulDivReservationStationSlots[i].getTag().equals(tag)) {
                 mulDivReservationStationSlots[i].setInstruction(null);
                 mulDivReservationStationSlots[i].setAll(tag,false,null,null,null,null,false,false, false);
                 updateNumOfUsedStationsM();

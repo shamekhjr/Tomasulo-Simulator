@@ -29,7 +29,7 @@ public class Bus {
         return isPopulated() ? value : null;
     }
 
-    public void setValue(double value) {
+    public void setValue(Double value) {
         this.value = value;
     }
 
@@ -41,7 +41,7 @@ public class Bus {
         this.tag = tag;
     }
 
-    public void publish(String tag, double value) {
+    public void publish(String tag, Double value) {
         this.tag = tag;
         this.value = value;
         populated = true;

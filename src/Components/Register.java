@@ -1,12 +1,12 @@
 package Components;
 
 public class Register {
-    private double value;
+    private Double value;
     private String name;
     private String q;
 
     public Register() {
-        value = 0;
+        value = 0.0;
         name = "";
         q = null;
     }
@@ -14,20 +14,20 @@ public class Register {
     public Register(String name, String q) {
         this.name = name;
         this.q = q;
-        this.value = 0;
+        this.value = 0.0;
     }
 
-    public Register(double value, String name, String q) {
+    public Register(Double value, String name, String q) {
         this.value = value;
         this.name = name;
         this.q = q;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(Double value) {
         this.value = value;
 
     }
@@ -50,7 +50,7 @@ public class Register {
 
     }
 
-    public void setAll(double value, String q) {
+    public void setAll(Double value, String q) {
         this.value = value;
         this.q = q;
     }

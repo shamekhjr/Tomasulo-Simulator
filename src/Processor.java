@@ -1,10 +1,7 @@
 import Components.*;
 import Enums.Operation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -50,7 +47,10 @@ public class Processor {
             System.out.println("Cycle " + processor.cycleCounter);
             processor.issue();
             processor.execute();
+            System.out.println(processor.addSubReservationStation);
+            System.out.println("--------------------------------------------");
             processor.writeBack();
+            System.out.println(processor.loadStoreBuffers);
             processor.cycleCounter++;
             System.out.println("============================================");
         }
@@ -80,14 +80,74 @@ public class Processor {
     }
 
     public Processor(int addSubSize, int mulDivSize, int loadBufferSize, int storeBufferSize, int memorySize, int Mul_DLatency, int Div_DLatency, int Add_DLatency, int Sub_DLatency, int DAddLatency, int SubILatency, int MemLatency) {
-        log = "";
-        addSubReservationStation = new AddSubReservationStation(addSubSize);
-        mulDivReservationStation = new MulDivReservationStation(mulDivSize);
-        loadStoreBuffers = new LoadStoreBuffers(loadBufferSize, storeBufferSize);
-        instructionQueue = new InstructionQueue();
-        memory = new Memory(memorySize);
-        registerFile = new RegisterFile();
-        bus = new Bus();
+        this.log = "";
+        this.addSubReservationStation = new AddSubReservationStation(addSubSize);
+        this.mulDivReservationStation = new MulDivReservationStation(mulDivSize);
+        this.loadStoreBuffers = new LoadStoreBuffers(loadBufferSize, storeBufferSize);
+        this.instructionQueue = new InstructionQueue();
+        this.memory = new Memory(memorySize);
+        this.registerFile = new RegisterFile();
+        this.bus = new Bus();
+        this.Mul_DLatency = Mul_DLatency;
+        this.Div_DLatency = Div_DLatency;
+        this.Add_DLatency = Add_DLatency;
+        this.Sub_DLatency = Sub_DLatency;
+        this.DAddLatency = DAddLatency;
+        this.SubILatency = SubILatency;
+        this.MemLatency = MemLatency;
+        this.cycleCounter = 1;
+        this.stall = false;
+    }
+
+    public Processor(int addSubSize, int mulDivSize, int loadBufferSize, int storeBufferSize, Memory memory, RegisterFile registerFile, int Mul_DLatency, int Div_DLatency, int Add_DLatency, int Sub_DLatency, int DAddLatency, int SubILatency, int MemLatency) {
+        this.log = "";
+        this.addSubReservationStation = new AddSubReservationStation(addSubSize);
+        this.mulDivReservationStation = new MulDivReservationStation(mulDivSize);
+        this.loadStoreBuffers = new LoadStoreBuffers(loadBufferSize, storeBufferSize);
+        this.instructionQueue = new InstructionQueue();
+        this.memory = memory;
+        this.registerFile = registerFile;
+        this.bus = new Bus();
+        this.Mul_DLatency = Mul_DLatency;
+        this.Div_DLatency = Div_DLatency;
+        this.Add_DLatency = Add_DLatency;
+        this.Sub_DLatency = Sub_DLatency;
+        this.DAddLatency = DAddLatency;
+        this.SubILatency = SubILatency;
+        this.MemLatency = MemLatency;
+        this.cycleCounter = 1;
+        this.stall = false;
+    }
+
+    public Processor(int addSubSize, int mulDivSize, int loadBufferSize, int storeBufferSize, Memory memory, int Mul_DLatency, int Div_DLatency, int Add_DLatency, int Sub_DLatency, int DAddLatency, int SubILatency, int MemLatency) {
+        this.log = "";
+        this.addSubReservationStation = new AddSubReservationStation(addSubSize);
+        this.mulDivReservationStation = new MulDivReservationStation(mulDivSize);
+        this.loadStoreBuffers = new LoadStoreBuffers(loadBufferSize, storeBufferSize);
+        this.instructionQueue = new InstructionQueue();
+        this.memory = memory;
+        this.registerFile = new RegisterFile();
+        this.bus = new Bus();
+        this.Mul_DLatency = Mul_DLatency;
+        this.Div_DLatency = Div_DLatency;
+        this.Add_DLatency = Add_DLatency;
+        this.Sub_DLatency = Sub_DLatency;
+        this.DAddLatency = DAddLatency;
+        this.SubILatency = SubILatency;
+        this.MemLatency = MemLatency;
+        this.cycleCounter = 1;
+        this.stall = false;
+    }
+
+    public Processor(int addSubSize, int mulDivSize, int loadBufferSize, int storeBufferSize, int memorySize, RegisterFile registerFile, int Mul_DLatency, int Div_DLatency, int Add_DLatency, int Sub_DLatency, int DAddLatency, int SubILatency, int MemLatency) {
+        this.log = "";
+        this.addSubReservationStation = new AddSubReservationStation(addSubSize);
+        this.mulDivReservationStation = new MulDivReservationStation(mulDivSize);
+        this.loadStoreBuffers = new LoadStoreBuffers(loadBufferSize, storeBufferSize);
+        this.instructionQueue = new InstructionQueue();
+        this.memory = new Memory(memorySize);
+        this.registerFile = registerFile;
+        this.bus = new Bus();
         this.Mul_DLatency = Mul_DLatency;
         this.Div_DLatency = Div_DLatency;
         this.Add_DLatency = Add_DLatency;
@@ -131,7 +191,7 @@ public class Processor {
                 operands.setQk(regSrc2.getQ());
             }
 
-        } else if (instruction.getImmediateValue() != NON_IMMEDIATE) { // immediate instruction
+        } else if (instruction.getOperation() == Operation.ADDI || instruction.getOperation() == Operation.SUBI) { // immediate instruction
             // get the operands from the reservation station
             String src1 = instruction.getSourceOperand();
             Register regSrc1 = registerFile.getRegister(src1);
@@ -144,7 +204,7 @@ public class Processor {
                 operands.setQj(regSrc1.getQ());
             }
 
-            operands.setVk(instruction.getImmediateValue());
+            operands.setVk((double) instruction.getImmediateValue());
         }
 
         return operands;
@@ -163,6 +223,8 @@ public class Processor {
             stall = false;
             return;
         }
+
+        System.out.println("Trying to issue Instruction (" + instruction.getInstructionString() + ")");
 
         // check instruction type
         Operation currOpr = instruction.getOperation();
@@ -282,7 +344,7 @@ public class Processor {
     }
 
     private void executionLoopOperations(LoadStoreSlot e) {
-        if(e.isBusy()) {
+        if(e.isBusy() && e.getInstruction().getIssueCycle() < cycleCounter) {
             if(!e.isReady()) {
                 e.updateReady();
 
@@ -292,7 +354,7 @@ public class Processor {
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is ready to execute");
                 } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: " + e.getQ());
             }
-            if(e.isReady() &&!e.isFinished()) {
+            else if(e.isReady() &&!e.isFinished()) {
                 e.decrementTimeLeft();
                 if(e.getTimeLeft() == 0) {
                     int effectiveAddress = e.getInstruction().getEffectiveAddress();
@@ -314,6 +376,36 @@ public class Processor {
             }
         }
 
+    }
+
+    private void executionLoopOperations(ReservationStationSlot e) {
+        if(e.isBusy() && e.getInstruction().getIssueCycle() < cycleCounter){
+            if (!e.isReady()) {
+                e.updateReady();
+
+                if(e.isReady()) {
+                    e.getInstruction().setExecutionStartCycle(cycleCounter);
+                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is ready to execute");
+                } else {
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
+                }
+            }
+            else if(e.isReady() && !e.isFinished()) {
+                e.decrementTimeLeft();
+                if (e.getTimeLeft() == 0) {
+                    e.setResult(calculate(e));
+                    e.getInstruction().setResult(calculate(e));
+                    if (e.getInstruction().getOperation() == Operation.BNEZ && e.getResult() == 1) {
+                        instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
+                    }
+                    e.setFinished(true);
+                    e.getInstruction().setExecutionEndCycle(cycleCounter);
+                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing");
+                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
+            }
+        }
     }
 
     private void updateReservationSlotsFromBus() {
@@ -374,35 +466,7 @@ public class Processor {
         }
     }
 
-    private void executionLoopOperations(ReservationStationSlot e) {
-        if(e.isBusy()){
-            if (!e.isReady()) {
-                e.updateReady();
 
-                if(e.isReady()) {
-                    e.getInstruction().setExecutionStartCycle(cycleCounter);
-                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
-                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is ready to execute");
-                } else {
-                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
-                }
-            }
-            if(e.isReady() && !e.isFinished()) {
-                e.decrementTimeLeft();
-                if (e.getTimeLeft() == 0) {
-                    e.setResult(calculate(e));
-                    e.getInstruction().setResult(calculate(e));
-                    if (e.getInstruction().getOperation() == Operation.BNEZ && e.getResult() == 1) {
-                        instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
-                    }
-                    e.setFinished(true);
-                    e.getInstruction().setExecutionEndCycle(cycleCounter);
-                    instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
-                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing");
-                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
-            }
-        }
-    }
     private Double calculate(ReservationStationSlot entry) {
         switch (entry.getInstruction().getOperation()){
             case DADD, ADDI, ADD_D -> {
@@ -452,11 +516,6 @@ public class Processor {
 
 
     public void writeBack() {
-        //TODO: check if instruction has finished executing, if yes, check if it has finished in this cycle
-        //TODO: if yes, do not write back and wait one more cycle
-        //TODO: count first all the instructions that can write back in this cycle and prioritize
-        //TODO: write back loads and stores
-
         //init counter to see how many want to publish, we choose based on "usefulness"
         //if same usefulness, random/FIFO
         int countFinished = 0;
@@ -503,6 +562,7 @@ public class Processor {
 
             //put the tag and the value on the bus
             bus.publish(finishedInstruction.getKey(), finishedInstruction.getValue().getResult());
+            System.out.println("Publishing instruction " + finishedInstruction.getValue().getInstructionString() + " with tag " + finishedInstruction.getKey() + " and result " + finishedInstruction.getValue().getResult());
             finishedInstruction.getValue().setPublishCycle(cycleCounter);
             instructionQueue.modifyInstruction(finishedInstruction.getValue().getIndex(), finishedInstruction.getValue());
 
@@ -512,38 +572,141 @@ public class Processor {
             loadStoreBuffers.removeLoadInstruction(finishedInstruction.getKey());
 
 
-        } else {
+        } else if (countFinished > 1) {
+            // most useful instruction
+            boolean found = false;
+            boolean needed = instructionNeeds.size() > 0;
+
+            while (!found && needed) {
+                // get the max value in the hashmap and the key
+                Map.Entry<String, Integer> maxEntry = instructionNeeds.entrySet().iterator().next();
+
+                for (Map.Entry<String, Integer> entry : instructionNeeds.entrySet()) {
+                    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
+                        maxEntry = entry;
+                    }
+                }
+
+                String currentTag = maxEntry.getKey();
+
+                instructionNeeds.remove(currentTag);
+
+                for (String tag: finishedInstructions.keySet()) {
+                    if (tag.equals(currentTag)) {
+                        found = true;
+                        //put the tag and the value on the bus
+                        bus.publish(tag, finishedInstructions.get(tag).getResult());
+                        System.out.println("Publishing instruction " + finishedInstructions.get(tag).getInstructionString()+ " with tag " + tag + " and result " + finishedInstructions.get(tag).getResult());
+
+                        finishedInstructions.get(tag).setPublishCycle(cycleCounter);
+                        instructionQueue.modifyInstruction(finishedInstructions.get(tag).getIndex(), finishedInstructions.get(tag));
+
+                        //remove the instruction from the reservation station
+                        addSubReservationStation.removeInstruction(tag);
+                        mulDivReservationStation.removeInstruction(tag);
+                        loadStoreBuffers.removeLoadInstruction(tag);
+                        break;
+                    }
+                }
+            }
+
+            // FIFO
+            if (!needed) {
+                boolean found2 = false;
+                for (Instruction instr : instructionQueue.getInstructions()) {
+                    for (ReservationStationSlot e : addSubReservationStation.getAddSubReservationStationSlots()) {
+                        if (e.getInstruction() != null && e.getInstruction().getInstructionString().equals(instr.getInstructionString())) {
+                            //put the tag and the value on the bus
+                            bus.publish(instr.getLabel(), instr.getResult());
+                            System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult());
+                            instr.setPublishCycle(cycleCounter);
+                            instructionQueue.modifyInstruction(instr.getIndex(), instr);
+
+                            //remove the instruction from the reservation station
+                            addSubReservationStation.removeInstruction(e.getTag());
+                            found2 = true;
+                            break;
+                        }
+                    }
+
+                    if (!found2) {
+                        for (ReservationStationSlot e : mulDivReservationStation.getMulDivReservationStationSlots()) {
+                            if (e.getInstruction() != null && e.getInstruction().getInstructionString().equals(instr.getInstructionString())) {
+                                //put the tag and the value on the bus
+                                bus.publish(instr.getLabel(), instr.getResult());
+                                System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult());
+                                instr.setPublishCycle(cycleCounter);
+                                instructionQueue.modifyInstruction(instr.getIndex(), instr);
+
+                                //remove the instruction from the reservation station
+                                mulDivReservationStation.removeInstruction(e.getTag());
+                                found2 = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!found2) {
+                        for (LoadStoreSlot e : loadStoreBuffers.getLoadSlots()) {
+                            if (e.getInstruction() != null && e.getInstruction().getInstructionString().equals(instr.getInstructionString())) {
+                                //put the tag and the value on the bus
+                                bus.publish(instr.getLabel(), instr.getResult());
+                                System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult());
+                                instr.setPublishCycle(cycleCounter);
+                                instructionQueue.modifyInstruction(instr.getIndex(), instr);
+
+                                //remove the instruction from the reservation station
+                                loadStoreBuffers.removeLoadInstruction(e.getTag());
+                                found2 = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
         }
 
         if (readyStores.size() == 1) {
             //key value pair containing the only element in the hashmap
             Instruction instrToStore = readyStores.iterator().next();
-            //store in the memory
-            memory.setMemoryItem(instrToStore.getEffectiveAddress(), instrToStore.getResult());
-            instrToStore.setPublishCycle(cycleCounter);
-            instructionQueue.modifyInstruction(instrToStore.getIndex(), instrToStore);
 
-            //remove the instruction from the reservation station
-            loadStoreBuffers.removeStoreInstruction(instrToStore.getLabel());
+            for (LoadStoreSlot e : loadStoreBuffers.getStoreSlots()) {
+                if (e.getInstruction() != null && e.getInstruction().getInstructionString().equals(instrToStore.getInstructionString())) {
+                    //store in the memory
+                    memory.setMemoryItem(instrToStore.getEffectiveAddress(), instrToStore.getResult());
+                    instrToStore.setPublishCycle(cycleCounter);
+                    System.out.println("Publishing instruction " + instrToStore.getInstructionString()+ " with tag " + e.getTag() + " and result " + instrToStore.getResult());
+                    instructionQueue.modifyInstruction(instrToStore.getIndex(), instrToStore);
 
-        } else {
+                    //remove the instruction from the reservation station
+                    loadStoreBuffers.removeStoreInstruction(e.getTag());
+                    break;
+                }
+            }
+
+        } else if (readyStores.size() > 1) {
 
             //FIFO
             //loop on instruction queue and see if the instruction is a store
             //if yes, this is the one i will write to memory
 
-            for (Instruction instr : instructionQueue.getInstructions()) {
-                if (instr.getOperation() == Operation.S_D) {
-                    if (readyStores.contains(instr)) {
-                        memory.setMemoryItem(instr.getEffectiveAddress(), instr.getResult());
-                        instr.setPublishCycle(cycleCounter);
-                        instructionQueue.modifyInstruction(instr.getIndex(), instr);
-                        loadStoreBuffers.removeStoreInstruction(instr.getLabel());
-                        break;
+            for (LoadStoreSlot e : loadStoreBuffers.getStoreSlots()) {
+                for (Instruction instr : instructionQueue.getInstructions()) {
+                    if (instr.getOperation() == Operation.S_D) {
+                        if (e.getInstruction() != null && e.getInstruction().getInstructionString().equals(instr.getInstructionString())) {
+                            memory.setMemoryItem(instr.getEffectiveAddress(), instr.getResult());
+                            instr.setPublishCycle(cycleCounter);
+                            System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + e.getTag() + " and result " + instr.getResult());
+                            instructionQueue.modifyInstruction(instr.getIndex(), instr);
+                            loadStoreBuffers.removeStoreInstruction(e.getTag());
+                            break;
+                        }
                     }
                 }
             }
+
+
 
         }
 
@@ -600,7 +763,85 @@ public class Processor {
         System.out.print("Memory Size: ");
         int memorySize = scanner.nextInt();
 
+        Memory memory = new Memory(memorySize);
+
         System.out.println("Sizes updated successfully!");
+
+        boolean preLoadMemory = false;
+        boolean preLoadRegisterFile = false;
+
+        System.out.println("Do you want to pre-load the memory? (Y/N)");
+        String choice = scanner.next();
+
+        if (choice.equalsIgnoreCase("Y")) {
+            preLoadMemory = true;
+            System.out.println("number of memory locations to pre-load: ");
+            int numberOfMemoryLocations = scanner.nextInt();
+
+            for (int i = 0; i < numberOfMemoryLocations; i++) {
+                System.out.println("Enter the value of memory location: ");
+                int index = scanner.nextInt();
+
+                if (index >= memorySize) {
+                    System.out.println("Invalid memory location!");
+                    i--;
+                    continue;
+                }
+
+                System.out.println("Enter the value: ");
+                double value = scanner.nextDouble();
+                memory.setMemoryItem(i, value);
+            }
+
+        }
+
+        System.out.println("Do you want to pre-load the register file? (Y/N)");
+        choice = scanner.next();
+
+        RegisterFile registerFile = new RegisterFile();
+
+        if (choice.equalsIgnoreCase("Y")) {
+            preLoadRegisterFile = true;
+            System.out.println("number of registers to pre-load: ");
+            int numberOfregisters = scanner.nextInt();
+
+            for (int i = 0; i < numberOfregisters; i++) {
+                System.out.println("Enter the register name (FNN/RNN | N = {1...32}): ");
+                String regName = scanner.next();
+
+                if (regName.charAt(0) == 'R' || regName.charAt(0) == 'r') {
+                    int regNumber = Integer.parseInt(regName.substring(1));
+                    if (regNumber < 1 || regNumber > 32) {
+                        System.out.println("Invalid register number!");
+                        i--;
+                        continue;
+                    } else {
+                        System.out.println("Enter the value: ");
+                        double value = scanner.nextDouble();
+                        registerFile.setRegister("R"+regNumber, value);
+                    }
+
+                } else if (regName.charAt(0) == 'F' || regName.charAt(0) == 'f') {
+                    int regNumber = Integer.parseInt(regName.substring(1));
+                    if (regNumber < 1 || regNumber > 32) {
+                        System.out.println("Invalid register number!");
+                        i--;
+                        continue;
+                    } else {
+                        System.out.println("Enter the value: ");
+                        double value = scanner.nextDouble();
+                        registerFile.setRegister("F"+regNumber, value);
+                    }
+
+                } else {
+                    System.out.println("Invalid register name!");
+                    i--;
+                    continue;
+                }
+
+            }
+
+        }
 
         System.out.println("Setting up the processor ...");
 
@@ -614,8 +855,15 @@ public class Processor {
         System.out.println("Processor setup complete!");
 
 
-
-        return new Processor(addSubReservationStationSize, mulDivReservationStationSize, loadBuffersSize, storeBuffersSize, memorySize, Mul_DLatency, Div_DLatency, Add_DLatency, Sub_DLatency, DAddLatency, SubILatency, MemLatency);
+        if (preLoadMemory && preLoadRegisterFile) {
+            return new Processor(addSubReservationStationSize, mulDivReservationStationSize, loadBuffersSize, storeBuffersSize, memory, registerFile, Mul_DLatency, Div_DLatency, Add_DLatency, Sub_DLatency, DAddLatency, SubILatency, MemLatency);
+        } else if (preLoadMemory) {
+            return new Processor(addSubReservationStationSize, mulDivReservationStationSize, loadBuffersSize, storeBuffersSize, memory, Mul_DLatency, Div_DLatency, Add_DLatency, Sub_DLatency, DAddLatency, SubILatency, MemLatency);
+        } else if (preLoadRegisterFile) {
+            return new Processor(addSubReservationStationSize, mulDivReservationStationSize, loadBuffersSize, storeBuffersSize, memorySize, registerFile, Mul_DLatency, Div_DLatency, Add_DLatency, Sub_DLatency, DAddLatency, SubILatency, MemLatency);
+        } else {
+            return new Processor(addSubReservationStationSize, mulDivReservationStationSize, loadBuffersSize, storeBuffersSize, memorySize, Mul_DLatency, Div_DLatency, Add_DLatency, Sub_DLatency, DAddLatency, SubILatency, MemLatency);
+        }
     }
 
     private static String[] splitInstruction(String instruction) {

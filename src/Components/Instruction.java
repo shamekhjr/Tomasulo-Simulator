@@ -11,7 +11,7 @@ public class Instruction {
     private String destinationOperand;
     private String targetOperand;
     private int effectiveAddress;
-    private double immediateValue;
+    private Integer immediateValue;
     private String label; //law el instruction odamha label 3ashan nerga3 lel label da law 3ayz a3ml branch
     private String jumpLabel;
     private String instructionString;
@@ -23,7 +23,7 @@ public class Instruction {
     private Integer publishCycle; //these will be initially set to -ve values until updated
 
     //new constructor with the new variables
-    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,int immediateValue, int effectiveAddress, String label, String jumpLabel, String instructionString, int index) {
+    public Instruction(boolean isFPop, boolean isMEMop, int latency, Operation operation, String sourceOperand, String destinationOperand, String targetOperand,Integer immediateValue, int effectiveAddress, String label, String jumpLabel, String instructionString, int index) {
         this.isFPop = isFPop;
         this.isMEMop = isMEMop;
         this.latency = latency;
@@ -85,7 +85,7 @@ public class Instruction {
         return issueCycle;
     }
 
-    public double getImmediateValue() {
+    public Integer getImmediateValue() {
         return immediateValue;
     }
 

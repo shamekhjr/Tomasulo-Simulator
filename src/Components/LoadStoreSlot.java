@@ -32,10 +32,23 @@ public class LoadStoreSlot {
         published = false;
     }
 
-    public LoadStoreSlot(Instruction instruction, String tag, boolean busy, double v, String q) {
+    public LoadStoreSlot(String tag) {
+        instruction = null;
+        this.tag = tag;
+        timeLeft = 0;
+        busy = false;
+        v = null;
+        q = null;
+        result = null;
+        ready = false;
+        finished = false;
+        published = false;
+    }
+
+    public LoadStoreSlot(Instruction instruction, String tag, boolean busy, Double v, String q) {
         this.instruction = instruction;
         this.tag = tag;
-        this.timeLeft = instruction.getLatency();
+        this.timeLeft = instruction == null ? 0 : instruction.getLatency();
         this.busy = busy;
         this.effectiveAddress = instruction.getEffectiveAddress();
         this.v = v;
@@ -90,7 +103,7 @@ public class LoadStoreSlot {
         return effectiveAddress;
     }
 
-    public double getV() {
+    public Double getV() {
         return v;
     }
 
@@ -108,11 +121,11 @@ public class LoadStoreSlot {
 
     }
 
-    public double getResult() {
+    public Double getResult() {
         return result;
     }
 
-    public void setResult(double result) {
+    public void setResult(Double result) {
         this.result = result;
 
     }
@@ -160,7 +173,19 @@ public class LoadStoreSlot {
 
     public void setAll(String tag, boolean busy, Double v, String q, boolean ready, boolean finished, boolean published) {
         this.tag = tag;
-        this.timeLeft = instruction.getLatency();
+        this.timeLeft = instruction == null ? 0 : instruction.getLatency();
+        this.busy = busy;
+        this.v = v;
+        this.q = q;
+        this.ready = ready;
+        this.finished = finished;
+        this.published = published;
+    }
+
+    public void setAll(String tag, Instruction instruction, boolean busy, Double v, String q, boolean ready, boolean finished, boolean published) {
+        this.tag = tag;
+        this.timeLeft = (instruction == null) ? 0 : instruction.getLatency();
+        this.instruction = instruction;
         this.busy = busy;
         this.v = v;
         this.q = q;

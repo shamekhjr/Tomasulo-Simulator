@@ -46,7 +46,7 @@ public class RegisterFile {
         }
     }
 
-    public void setRegister(String name, double value) {
+    public void setRegister(String name, Double value) {
         if (name.charAt(0) == 'R') {
             gpRegisters[Integer.parseInt(name.substring(1))].setValue(value);
         } else if (name.charAt(0) == 'F') {

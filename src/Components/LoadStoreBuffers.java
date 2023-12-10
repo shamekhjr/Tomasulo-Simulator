@@ -16,10 +16,10 @@ public class LoadStoreBuffers {
         loadSlots = new LoadStoreSlot[loadBufferSize];
         storeSlots = new LoadStoreSlot[storeBufferSize];
         for (int i = 0; i < loadBufferSize; i++) {
-            loadSlots[i] = new LoadStoreSlot();
+            loadSlots[i] = new LoadStoreSlot("L"+i);
         }
         for (int i = 0; i < storeBufferSize; i++) {
-            storeSlots[i] = new LoadStoreSlot();
+            storeSlots[i] = new LoadStoreSlot("S"+i);
         }
     }
 
@@ -31,10 +31,10 @@ public class LoadStoreBuffers {
         loadSlots = new LoadStoreSlot[this.loadBufferSize];
         storeSlots = new LoadStoreSlot[this.storeBufferSize];
         for (int i = 0; i < loadBufferSize; i++) {
-            loadSlots[i] = new LoadStoreSlot();
+            loadSlots[i] = new LoadStoreSlot("L"+i);
         }
         for (int i = 0; i < storeBufferSize; i++) {
-            storeSlots[i] = new LoadStoreSlot();
+            storeSlots[i] = new LoadStoreSlot("S"+i);
         }
     }
 
@@ -157,9 +157,9 @@ public class LoadStoreBuffers {
     //remove an instruction that takes tag as input from the reservation station then update usedStations
     public void removeLoadInstruction(String tag) {
         for (int i = 0; i < loadBufferSize; i++) {
-            if (loadSlots[i].getTag().equals(tag)) {
+            if (loadSlots[i].isBusy() && loadSlots[i].getTag().equals(tag)) {
                 loadSlots[i].setInstruction(null);
-                loadSlots[i].setAll(tag,false, null,null, false, false, false);
+                loadSlots[i].setAll(tag, null,false, null,null, false, false, false);
                 updateNumOfUsedLoadSlots();
                 break;
             }

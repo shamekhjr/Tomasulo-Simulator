@@ -29,6 +29,21 @@ public class ReservationStationSlot {
         published = false;
     }
 
+    public ReservationStationSlot(String tag) {
+        instruction = null;
+        this.tag = tag;
+        timeLeft = 0;
+        busy = false;
+        vJ = null;
+        vK = null;
+        qJ = null;
+        qK = null;
+        result = null;
+        ready = false;
+        finished = false;
+        published = false;
+    }
+
     public ReservationStationSlot(Instruction instruction, String tag, boolean busy, double vJ, double vK, String qJ, String qK, double result, boolean ready, boolean finished, boolean published) {
         this.instruction = instruction;
         this.tag = tag;
@@ -77,15 +92,15 @@ public class ReservationStationSlot {
         return vJ;
     }
 
-    public void setvJ(double vJ) {
+    public void setvJ(Double vJ) {
         this.vJ = vJ;
     }
 
-    public double getvK() {
+    public Double getvK() {
         return vK;
     }
 
-    public void setvK(double vK) {
+    public void setvK(Double vK) {
         this.vK = vK;
     }
 
@@ -105,11 +120,11 @@ public class ReservationStationSlot {
         this.qK = qK;
     }
 
-    public double getResult() {
+    public Double getResult() {
         return result;
     }
 
-    public void setResult(double result) {
+    public void setResult(Double result) {
         this.result = result;
     }
 
@@ -143,7 +158,7 @@ public class ReservationStationSlot {
 
     public void setAll(String tag, boolean busy, Double vJ, Double vK, String qJ, String qK, boolean finished, boolean published, boolean ready) {
         this.tag = tag;
-        this.timeLeft = instruction.getLatency();
+        this.timeLeft = instruction == null ? 0 : instruction.getLatency();
         this.busy = busy;
         this.vJ = vJ;
         this.vK = vK;
