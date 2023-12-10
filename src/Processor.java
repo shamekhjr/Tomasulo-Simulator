@@ -238,7 +238,6 @@ public class Processor {
 
         if (stall) { // stalled from branch
             System.out.println("Instruction (" + instruction.getInstructionString() + ") is stalled");
-            stall = false;
             return;
         }
 
@@ -430,8 +429,11 @@ public class Processor {
             if (e.getTimeLeft() == 0) {
                 e.setResult(calculate(e));
                 e.getInstruction().setResult(calculate(e));
-                if (e.getInstruction().getOperation() == Operation.BNEZ && e.getResult() == 1) {
-                    instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
+                if (e.getInstruction().getOperation() == Operation.BNEZ) {
+                    if(e.getResult() == 1) {
+                        instructionQueue.returnToLabel(e.getInstruction().getJumpLabel());
+                    }
+                    stall = false;
                 }
                 e.setFinished(true);
                 e.getInstruction().setExecutionEndCycle(cycleCounter);
