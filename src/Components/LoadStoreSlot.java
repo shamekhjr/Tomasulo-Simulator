@@ -199,5 +199,13 @@ public class LoadStoreSlot {
         this.published = published;
     }
 
+    public String loadForGUI() {
+        return tag + "\t  " + effectiveAddress;
+    }
+
+    public String storeForGUI() {
+        return tag + "\t  " + v + "\t  " + effectiveAddress;
+    }
+
 
 }

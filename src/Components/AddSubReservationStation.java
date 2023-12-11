@@ -101,7 +101,19 @@ public class AddSubReservationStation {
     public String toString() {
         String s = "";
         for (int i = 0; i < size; i++) {
-            s += addSubReservationStationSlots[i].toString() + "\n";
+            s += addSubReservationStationSlots[i].toString()+ "\n";
+        }
+        return s;
+    }
+
+    public String forGui() {
+        String s = "";
+        // print columns in the order
+        // tag  timeLeft  busy + "  " + vJ + "   " + vK + "   " + qJ + "   " + qK + "     "
+        s += "Tag"  + " \tTimeLeft" +  " \tBusy" +  " \tVJ" +  " \tVK" + " \tQJ" + " \tQK" + "\n";
+
+        for (int i = 0; i < size; i++) {
+            s += addSubReservationStationSlots[i].forGUI()+ "\n";
         }
         return s;
     }

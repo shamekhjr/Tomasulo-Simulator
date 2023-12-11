@@ -96,5 +96,14 @@ public class MulDivReservationStation {
         return s;
     }
 
+    public String forGUI() {
+        String s = "";
+        s += "Tag"  + " \tTimeLeft" +  " \tBusy" +  " \tVJ" +  " \tVK" + " \tQJ" + " \tQK" + "\n";
+        for (int i = 0; i < size; i++) {
+            s += mulDivReservationStationSlots[i].forGUI() + "\n";
+        }
+        return s;
+    }
+
 
 }

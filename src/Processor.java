@@ -9,24 +9,24 @@ import java.io.IOException;
 
 
 public class Processor {
-    String log;
-    AddSubReservationStation addSubReservationStation;
-    MulDivReservationStation mulDivReservationStation;
-    LoadStoreBuffers loadStoreBuffers;
-    InstructionQueue instructionQueue;
-    Memory memory;
-    RegisterFile registerFile;
-    Bus bus;
-    int Mul_DLatency;
-    int Div_DLatency;
-    int Add_DLatency;
-    int Sub_DLatency;
-    int DAddLatency;
-    int SubILatency;
-    int MemLatency;
-    int cycleCounter;
-    final int NON_IMMEDIATE = -404404404;
-    boolean stall;
+    public String log;
+    public AddSubReservationStation addSubReservationStation;
+    public MulDivReservationStation mulDivReservationStation;
+    public LoadStoreBuffers loadStoreBuffers;
+    public InstructionQueue instructionQueue;
+    public Memory memory;
+    public RegisterFile registerFile;
+    public Bus bus;
+    public int Mul_DLatency;
+    public int Div_DLatency;
+    public int Add_DLatency;
+    public int Sub_DLatency;
+    public int DAddLatency;
+    public int SubILatency;
+    public int MemLatency;
+    public int cycleCounter;
+    public final int NON_IMMEDIATE = -404404404;
+    public boolean stall;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("============================================");
@@ -45,6 +45,7 @@ public class Processor {
 
         while (!(processor.instructionQueue.getCurrentIndex() >= processor.instructionQueue.size() && processor.addSubReservationStation.isEmpty() && processor.mulDivReservationStation.isEmpty() && processor.loadStoreBuffers.isEmpty())) {
             System.out.println("Cycle " + processor.cycleCounter);
+            processor.log += "Cycle " + processor.cycleCounter + "\n";
 
             processor.issue();
             processor.execute();
@@ -75,6 +76,8 @@ public class Processor {
             System.out.println("--------------------------------------------");
             processor.cycleCounter++;
             System.out.println("============================================");
+
+            processor.log += "============================================\n";
         }
 
         //processor.instructionQueue.print();
@@ -242,6 +245,7 @@ public class Processor {
 
         if (stall) { // stalled from branch
             System.out.println("Instruction (" + instruction.getInstructionString() + ") is stalled");
+            log += "Instruction (" + instruction.getInstructionString() + ") is stalled\n";
             return;
         }
 
@@ -359,8 +363,10 @@ public class Processor {
             instructionQueue.incrementIndex();
             updateRegisterQ(instruction, assignedSlot, assignedLoadStoreSlot);
             System.out.println("Instruction (" + instruction.getInstructionString() + ") is issued");
+            log += "Instruction (" + instruction.getInstructionString() + ") is issued\n";
         } else {
             System.out.println("Instruction (" + instruction.getInstructionString() + ") could not be issued");
+            log += "Instruction (" + instruction.getInstructionString() + ") could not be issued\n";
         }
 
     }
@@ -400,7 +406,10 @@ public class Processor {
 
                 if(e.isReady()) {
                     executeCycle(e);
-                } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: " + e.getQ());
+                } else {
+                    System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: " + e.getQ());
+                    log += "Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: " + e.getQ() + "\n";
+                }
             }
             else if(e.isReady() && !e.isFinished()) {
                 executeCycle(e);
@@ -432,8 +441,10 @@ public class Processor {
                 e.getInstruction().setExecutionEndCycle(cycleCounter);
                 instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
                 System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " has finished executing");
+                log += "Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " has finished executing\n";
             } else
                 System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is executing, " + e.getTimeLeft() + " cycles left");
+                log += "Instruction (" + e.getInstruction().getInstructionString() + ")  in slot " + e.getTag() + " is executing, " + e.getTimeLeft() + " cycles left\n";
         }
     }
 
@@ -458,8 +469,11 @@ public class Processor {
                 e.getInstruction().setExecutionEndCycle(cycleCounter);
                 instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
                 System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing");
-            } else System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
-        }
+                log += "Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" has finished executing\n";
+            } else {
+                System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left");
+                log += "Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is executing, "+e.getTimeLeft()+" cycles left\n";}
+            }
     }
 
     private void executionLoopOperations(ReservationStationSlot e) {
@@ -471,6 +485,7 @@ public class Processor {
                    executeCycle(e);
                 } else {
                     System.out.println("Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK());
+                    log += "Instruction (" + e.getInstruction().getInstructionString() + ")  in slot "+ e.getTag()+" is not ready to execute yet, waiting for operands: "+e.getqJ()+", "+e.getqK()+"\n";
                 }
             }
             else if(e.isReady() && !e.isFinished()) {
@@ -612,6 +627,7 @@ public class Processor {
                 e.getInstruction().setPublishCycle(cycleCounter);
                 instructionQueue.modifyInstruction(e.getInstruction().getIndex(), e.getInstruction());
                 System.out.println("Publishing instruction " + e.getInstruction().getInstructionString() + " with tag " + e.getTag() + " and result " + e.getInstruction().getResult());
+                log += "Publishing instruction " + e.getInstruction().getInstructionString() + " with tag " + e.getTag() + " and result " + e.getInstruction().getResult() + "\n";
                 addSubReservationStation.removeInstruction(e.getTag());
 
             }
@@ -646,6 +662,7 @@ public class Processor {
             //put the tag and the value on the bus
             bus.publish(finishedInstruction.getKey(), finishedInstruction.getValue().getResult());
             System.out.println("Publishing instruction " + finishedInstruction.getValue().getInstructionString() + " with tag " + finishedInstruction.getKey() + " and result " + finishedInstruction.getValue().getResult());
+            log += "Publishing instruction " + finishedInstruction.getValue().getInstructionString() + " with tag " + finishedInstruction.getKey() + " and result " + finishedInstruction.getValue().getResult() + "\n";
             finishedInstruction.getValue().setPublishCycle(cycleCounter);
             instructionQueue.modifyInstruction(finishedInstruction.getValue().getIndex(), finishedInstruction.getValue());
 
@@ -680,6 +697,7 @@ public class Processor {
                         //put the tag and the value on the bus
                         bus.publish(tag, finishedInstructions.get(tag).getResult());
                         System.out.println("Publishing instruction " + finishedInstructions.get(tag).getInstructionString()+ " with tag " + tag + " and result " + finishedInstructions.get(tag).getResult());
+                        log += "Publishing instruction " + finishedInstructions.get(tag).getInstructionString()+ " with tag " + tag + " and result " + finishedInstructions.get(tag).getResult() + "\n";
 
                         finishedInstructions.get(tag).setPublishCycle(cycleCounter);
                         instructionQueue.modifyInstruction(finishedInstructions.get(tag).getIndex(), finishedInstructions.get(tag));
@@ -702,6 +720,7 @@ public class Processor {
                             //put the tag and the value on the bus
                             bus.publish(instr.getLabel(), instr.getResult());
                             System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult());
+                            log += "Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult() + "\n";
                             instr.setPublishCycle(cycleCounter);
                             instructionQueue.modifyInstruction(instr.getIndex(), instr);
 
@@ -718,6 +737,7 @@ public class Processor {
                                 //put the tag and the value on the bus
                                 bus.publish(instr.getLabel(), instr.getResult());
                                 System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult());
+                                log += "Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult() + "\n";
                                 instr.setPublishCycle(cycleCounter);
                                 instructionQueue.modifyInstruction(instr.getIndex(), instr);
 
@@ -735,6 +755,7 @@ public class Processor {
                                 //put the tag and the value on the bus
                                 bus.publish(instr.getLabel(), instr.getResult());
                                 System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult());
+                                log += "Publishing instruction " + instr.getInstructionString()+ " with tag " + instr.getLabel() + " and result " + instr.getResult() + "\n";
                                 instr.setPublishCycle(cycleCounter);
                                 instructionQueue.modifyInstruction(instr.getIndex(), instr);
 
@@ -760,6 +781,7 @@ public class Processor {
                     memory.setMemoryItem(instrToStore.getEffectiveAddress(), instrToStore.getResult());
                     instrToStore.setPublishCycle(cycleCounter);
                     System.out.println("Publishing instruction " + instrToStore.getInstructionString()+ " with tag " + e.getTag() + " and result " + instrToStore.getResult());
+                    log += "Publishing instruction " + instrToStore.getInstructionString()+ " with tag " + e.getTag() + " and result " + instrToStore.getResult() + "\n";
                     instructionQueue.modifyInstruction(instrToStore.getIndex(), instrToStore);
 
                     //remove the instruction from the reservation station
@@ -781,6 +803,7 @@ public class Processor {
                             memory.setMemoryItem(instr.getEffectiveAddress(), instr.getResult());
                             instr.setPublishCycle(cycleCounter);
                             System.out.println("Publishing instruction " + instr.getInstructionString()+ " with tag " + e.getTag() + " and result " + instr.getResult());
+                            log += "Publishing instruction " + instr.getInstructionString()+ " with tag " + e.getTag() + " and result " + instr.getResult() + "\n";
                             instructionQueue.modifyInstruction(instr.getIndex(), instr);
                             loadStoreBuffers.removeStoreInstruction(e.getTag());
                             break;

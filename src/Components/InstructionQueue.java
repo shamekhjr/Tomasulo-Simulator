@@ -68,4 +68,12 @@ public class InstructionQueue {
             System.out.println(instruction);
         }
     }
+
+    public String forGUI() {
+        String s = "Instruction \t Issue \t Exec \t Write \n";
+        for (Instruction instruction : instructions) {
+            s += instruction.forGui() + "\n";
+        }
+        return s;
+    }
 }

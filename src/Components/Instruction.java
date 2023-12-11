@@ -160,4 +160,8 @@ public class Instruction {
                 '}';
     }
 
+    public String forGui() {
+        return instructionString + " \t\t" + issueCycle + " \t" + executionStartCycle + ".." + executionEndCycle + " \t" + publishCycle + " \t";
+    }
+
 }

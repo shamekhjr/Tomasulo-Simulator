@@ -1,0 +1,104 @@
+JFDML JFormDesigner: "8.2.0.0.331" Java: "17.0.6" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :p:18:p, par l {seq {space :p:120:p, comp runButton:::p::p, space :::p, comp stepButton:::p::p, space :0:0:x}, seq {comp label1:::p::p, space :p:259:p, comp label2:::p::p, space :::x}, seq l {comp scrollPane1:::p:280:p, space :::p, par l {seq t {par l {comp label6:::p::p, comp scrollPane6:::p:160:p}, par l {seq {space :p:18:p, comp label7:::p::p, space :p:152:p}, seq t {space :::p, comp scrollPane7:::p:214:p, space u:::p}}, par l {comp label8:::p::p, comp scrollPane8:::::x}}, seq l {space :p:404:p, comp label3:::p::p}, seq {comp scrollPane2:::p:386:p, space s:::p, comp scrollPane3:::p:396:p}, comp label4:::p::p, comp scrollPane4:::p:800:p, comp label5:::p::p, comp scrollPane5::l:p:800:p}, space :p:51:p}}}}"
+			"$verticalGroup": "par l {seq t {space :::p, par b {comp label1::b:p::p, comp label2::b:p::p, comp label3::b:p::p}, space :::p, par l {seq {par l {comp scrollPane2:::p:209:p, comp scrollPane3:::p:209:p}, space u:::p, comp label4:::p::p, space :::p, comp scrollPane4:::p:100:p, space u:::p, comp label5:::p::p, space u:::p, comp scrollPane5:::p:112:p, space s:::p, par b {comp label6::b:p::p, comp label7::b:p::p, comp label8::b:p::p}, space :::x, par t:::p {comp scrollPane6::l::153:x, comp scrollPane7::l::153:x, comp scrollPane8::l::153:x}}, comp scrollPane1::::691:x}, space u:::p, par b {comp stepButton::b:p::p, comp runButton::b:p::p}, space :::p}}"
+		} ) {
+			name: "this"
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label1"
+				"text": "Code"
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "codeTextBox"
+				} )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "runButton"
+				"text": "Run"
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "stepButton"
+				"text": "Step"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label2"
+				"text": "Register File"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label3"
+				"text": "Memory"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label4"
+				"text": "AddSub Reservation Stations"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label5"
+				"text": "MulDiv Reservation Stations"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label6"
+				"text": "Load Buffer"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label7"
+				"text": "Store Buffer"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label8"
+				"text": "Log"
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane2"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "regFileTextBox"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane3"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "memTextBox"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane4"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "addSubTextbox"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane5"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "mulDivTextbox"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane6"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "loadBufferTextbox"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane7"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "storeBufferTextbox"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane8"
+				add( new FormComponent( "javax.swing.JTextArea" ) {
+					name: "logTextBox"
+				} )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 1140, 760 )
+		} )
+	}
+}

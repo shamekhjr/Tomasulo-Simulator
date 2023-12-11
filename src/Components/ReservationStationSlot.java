@@ -192,5 +192,9 @@ public class ReservationStationSlot {
         return "Instruction: " + instruction + " Tag: " + tag + " Time Left: " + timeLeft + " Busy: " + busy + " vJ: " + vJ + " vK: " + vK + " qJ: " + qJ + " qK: " + qK + " Result: " + result + " Ready: " + ready + " Finished: " + finished + " Published: " + published;
     }
 
+    public String forGUI() {
+        return  tag + "     \t" + timeLeft + "     \t" + busy + "  \t" + vJ + "   \t" + vK + "   \t" + qJ + "   \t" + qK + "     ";
+    }
+
 
 }

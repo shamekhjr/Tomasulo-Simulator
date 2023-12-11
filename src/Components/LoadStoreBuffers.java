@@ -194,4 +194,22 @@ public class LoadStoreBuffers {
         return s;
     }
 
+    public String loadBufferForGui() {
+        // columns tag and address
+        String s = "Tag\tAddress\n";
+        for (int i = 0; i < loadBufferSize; i++) {
+            s += loadSlots[i].loadForGUI() + "\n";
+        }
+        return s;
+    }
+
+    public String storeBufferForGui() {
+        // columns tag and address
+        String s = "Tag\tValue\tAddress\n";
+        for (int i = 0; i < storeBufferSize; i++) {
+            s += storeSlots[i].storeForGUI() + "\n";
+        }
+        return s;
+    }
+
 }
